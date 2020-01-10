@@ -6,6 +6,17 @@ For small businesses using Google Suite, Google provides built in access control
 
 Additionally this tool is recommended for promoting personal security too by allowing individuals to govern who they give access to.
 
+## Installation
+1. To set this up start by cloning this repository and navigating to the directory:
+```
+user@linux:~$ git clone https://github.com/matamorphosis/GDrive-Access-Governance && cd GDrive-Access-Governance
+```
+2. Install python requirements using the requirements.txt file in the directory:
+```
+user@linux:~/Path/to/GDrive-Access-Governance/$ pip3 install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib
+```
+3. You will need a credentials.json file. To obtain this log into your Google Account and navigate to https://developers.google.com/drive/api/v3/quickstart/python, then click the blue button called "Enable the Drive API". A pop-up box should come up and there will be another blue button called "DOWNLOAD CLIENT CONFIGURATION". Click this button to download your credentials.json file and then move it to your GDrive-Access-Governance directory.
+
 ## Usage
 There are four options for running this tool:  
 1. Permitted Email Addresses - a text file containing email addresses that are safe. (Will report any files that can be accessed by email addresses that are not in the file.)
