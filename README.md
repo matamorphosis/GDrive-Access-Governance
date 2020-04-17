@@ -1,5 +1,8 @@
 # Google Drive Access Governance
 A simple snitch tool which alerts any Google Drive user who has access to their files who may pose a security risk.
+**Version 2 Now Available**
+- Restrict searches by Google Drive directories.
+- Code efficiency improvements and bug fixes.
 
 ## Use Cases
 For small businesses using Google Suite, Google provides built in access controls for all users within that company's Google Suite; however, what if someone in the business shares files within Google Drive with someone outside the organisation? This tool provides a simple and effective way of returning any files that can be accessed by potentially untrusted persons.
@@ -21,7 +24,7 @@ user@linux:~/Path/to/GDrive-Access-Governance/$ pip3 install --upgrade google-ap
 There are four options for running this tool:  
 1. Permitted Email Addresses - a text file containing email addresses that are safe. (Will report any files that can be accessed by email addresses that are not in the file.)
 ```
-user@linux:~$ python3 Google_Drive_Governance.py -pe emails.txt
+user@linux:~$ python3 Google_Drive_Governance.py -pe allowed_emails.txt
 ```
 2. Non-Permitted Email Addresses - a text file containing email addresses that are safe. (Will report any files that can be accessed by email addresses that are in the file.)
 ```
@@ -29,11 +32,19 @@ user@linux:~$ python3 Google_Drive_Governance.py -ne risky_emails.txt
 ```
 3. Permitted Domains - a text file containing domains that are safe. (Will report any files that can be accessed by email addresses that do not belong to the domain names in the file.)
 ```
-user@linux:~$ python3 Google_Drive_Governance.py -pe domains.txt
+user@linux:~$ python3 Google_Drive_Governance.py -pe allowed_domains.txt
 ```
 4. Non-Permitted Domains - a text file containing domains that are safe. (Will report any files that can be accessed by email addresses that belong to the domain names in the file.)
 ```
 user@linux:~$ python3 Google_Drive_Governance.py -ne risky_domains.txt
+```
+5. Excluded Directories - a text file containing directories, or parents in the language of the GSuite API, that the search should omit from searching. 
+```
+user@linux:~$ python3 Google_Drive_Governance.py -pe allowed_domains.txt -ed directories_to_exclude.txt
+```
+6. Included Directories - a text file containing directories, or parents in the language of the GSuite API, that the search should restrict its searching to. 
+```
+user@linux:~$ python3 Google_Drive_Governance.py -pe allowed_domains.txt -id directories_to_include.txt
 ```
 
 Lastly, there is one additional argument -ps or --pagesize. This argument controls the pagination of Google Drive. Each API call can only return a maximum of 1000 results. To thread more lightly you can request 100 items per page. The tool will still search the entire Google Drive, just in smaller chunks. If you don't specify this option it will request 1000 items per page.
