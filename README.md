@@ -1,5 +1,5 @@
 # Google Drive Access Governance
-A simple snitch tool which alerts any Google Drive user who has access to their files who may pose a security risk.
+A simple snitch tool which alerts any Google Drive user who has access to their files who may pose a security risk.  
 **Version 2 Now Available**
 - Restrict searches by Google Drive directories.
 - Code efficiency improvements and bug fixes.
