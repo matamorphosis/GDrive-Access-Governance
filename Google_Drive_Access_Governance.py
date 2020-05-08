@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 # Google Drive External User Governance Tool Version 1.2.
-import pickle, os.path, sys, argparse, multiprocessing, multiprocessing.pool as mpool
+import pickle, os.path, sys, argparse, multiprocessing, colorama, multiprocessing.pool as mpool
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
@@ -9,6 +9,12 @@ from google.auth.transport.requests import Request
 Scope = ['https://www.googleapis.com/auth/drive.metadata.readonly']
 Exclude_Directories = ""
 Include_Directories = ""
+colorama.init()
+
+def Print_Red(To_Print):
+    Start = "\033[1;31m"
+    End = "\033[0;0m"
+    print(f"{Start}{To_Print}{End}")
 
 def Read_File(File_Name):
 
@@ -66,47 +72,46 @@ class Main:
                 if "permitted_domains" in kwargs:
                     
                     for Permission_Detail in Permission_Details:
-                        print(Item['id'])
 
                         if any(substring not in Permission_Detail['emailAddress'] for substring in kwargs['permitted_domains']) and Current_File_ID != Item['id']:
-                            print(f"\033[41mFile ID: {Item['id']} - File Name: {Item['name']}\n - Accessible by {Permission_Detail['displayName']} - Email: {Permission_Detail['emailAddress']}\033[40m")
+                            Print_Red(f"File ID: {Item['id']} - File Name: {Item['name']}\n - Accessible by {Permission_Detail['displayName']} - Email: {Permission_Detail['emailAddress']}")
                             Current_File_ID = Item['id']
 
                         elif any(substring not in Permission_Detail['emailAddress'] for substring in kwargs['permitted_domains']) and Current_File_ID == Item['id']:
-                            print(f"\033[41m - Accessible by {Permission_Detail['displayName']} - Email: {Permission_Detail['emailAddress']}\033[40m")
+                            Print_Red(f" - Accessible by {Permission_Detail['displayName']} - Email: {Permission_Detail['emailAddress']}")
 
                 elif "non_permitted_domains" in kwargs:
                     
                     for Permission_Detail in Permission_Details:
 
                         if any(substring in Permission_Detail['emailAddress'] for substring in kwargs['non_permitted_domains']) and Current_File_ID != Item['id']:
-                            print(f"\033[41mFile ID: {Item['id']} - Name: {Item['name']} - Accessible by {Permission_Detail['displayName']} - Email: {Permission_Detail['emailAddress']}\033[40m")
+                            Print_Red(f"File ID: {Item['id']} - Name: {Item['name']} - Accessible by {Permission_Detail['displayName']} - Email: {Permission_Detail['emailAddress']}")
                             Current_File_ID = Item['id']
 
                         elif any(substring in Permission_Detail['emailAddress'] for substring in kwargs['non_permitted_domains']) and Current_File_ID == Item['id']:
-                            print(f"\033[41m - Accessible by {Permission_Detail['displayName']} - Email: {Permission_Detail['emailAddress']}\033[40m")
+                            Print_Red(f" - Accessible by {Permission_Detail['displayName']} - Email: {Permission_Detail['emailAddress']}")
 
                 elif "permitted_emails" in kwargs:
                     
                     for Permission_Detail in Permission_Details:
 
                         if Permission_Detail['emailAddress'] not in kwargs['permitted_emails']  and Current_File_ID != Item['id']:
-                            print(f"\033[41mFile ID: {Item['id']} - Name: {Item['name']} - Accessible by {Permission_Detail['displayName']} - Email: {Permission_Detail['emailAddress']}\033[40m")
+                            Print_Red(f"File ID: {Item['id']} - Name: {Item['name']} - Accessible by {Permission_Detail['displayName']} - Email: {Permission_Detail['emailAddress']}")
                             Current_File_ID = Item['id']
 
                         elif Permission_Detail['emailAddress'] not in kwargs['permitted_emails']  and Current_File_ID == Item['id']:
-                            print(f"\033[41m - Accessible by {Permission_Detail['displayName']} - Email: {Permission_Detail['emailAddress']}\033[40m")
+                            Print_Red(f" - Accessible by {Permission_Detail['displayName']} - Email: {Permission_Detail['emailAddress']}")
 
                 elif "non_permitted_emails" in kwargs:
                     
                     for Permission_Detail in Permission_Details:
 
                         if Permission_Detail['emailAddress'] in kwargs['non_permitted_emails'] and Current_File_ID != Item['id']:
-                            print(f"\033[41mFile ID: {Item['id']} - Name: {Item['name']} - Accessible by {Permission_Detail['displayName']} - Email: {Permission_Detail['emailAddress']}\033[40m")
+                            Print_Red(f"File ID: {Item['id']} - Name: {Item['name']} - Accessible by {Permission_Detail['displayName']} - Email: {Permission_Detail['emailAddress']}")
                             Current_File_ID = Item['id']
 
                         elif Permission_Detail['emailAddress'] in kwargs['non_permitted_emails'] and Current_File_ID == Item['id']:
-                            print(f"\033[41m - Accessible by {Permission_Detail['displayName']} - Email: {Permission_Detail['emailAddress']}\033[40m")
+                            Print_Red(f" - Accessible by {Permission_Detail['displayName']} - Email: {Permission_Detail['emailAddress']}")
 
             except:
                 pass
@@ -123,44 +128,44 @@ class Main:
                     for Permission_Detail in Permission_Details:
 
                         if any(substring not in Permission_Detail['emailAddress'] for substring in kwargs['permitted_domains']) and Current_File_ID != Item['id']:
-                            print(f"\033[41mFile ID: {Item['id']} - File Name: {Item['name']}\n - Accessible by {Permission_Detail['displayName']} - Email: {Permission_Detail['emailAddress']}\033[40m")
+                            Print_Red(f"File ID: {Item['id']} - File Name: {Item['name']}\n - Accessible by {Permission_Detail['displayName']} - Email: {Permission_Detail['emailAddress']}")
                             Current_File_ID = Item['id']
 
                         elif any(substring not in Permission_Detail['emailAddress'] for substring in kwargs['permitted_domains']) and Current_File_ID == Item['id']:
-                            print(f"\033[41m - Accessible by {Permission_Detail['displayName']} - Email: {Permission_Detail['emailAddress']}\033[40m")
+                            Print_Red(f" - Accessible by {Permission_Detail['displayName']} - Email: {Permission_Detail['emailAddress']}")
 
                 elif "non_permitted_domains" in kwargs:
                     
                     for Permission_Detail in Permission_Details:
 
                         if any(substring in Permission_Detail['emailAddress'] for substring in kwargs['non_permitted_domains']) and Current_File_ID != Item['id']:
-                            print(f"\033[41mFile ID: {Item['id']} - Name: {Item['name']} - Accessible by {Permission_Detail['displayName']} - Email: {Permission_Detail['emailAddress']}\033[40m")
+                            Print_Red(f"File ID: {Item['id']} - Name: {Item['name']} - Accessible by {Permission_Detail['displayName']} - Email: {Permission_Detail['emailAddress']}")
                             Current_File_ID = Item['id']
 
                         elif any(substring in Permission_Detail['emailAddress'] for substring in kwargs['non_permitted_domains']) and Current_File_ID == Item['id']:
-                            print(f"\033[41m - Accessible by {Permission_Detail['displayName']} - Email: {Permission_Detail['emailAddress']}\033[40m")
+                            Print_Red(f" - Accessible by {Permission_Detail['displayName']} - Email: {Permission_Detail['emailAddress']}")
 
                 elif "permitted_emails" in kwargs:
                     
                     for Permission_Detail in Permission_Details:
 
                         if Permission_Detail['emailAddress'] not in kwargs['permitted_emails']  and Current_File_ID != Item['id']:
-                            print(f"\033[41mFile ID: {Item['id']} - Name: {Item['name']} - Accessible by {Permission_Detail['displayName']} - Email: {Permission_Detail['emailAddress']}\033[40m")
+                            Print_Red(f"File ID: {Item['id']} - Name: {Item['name']} - Accessible by {Permission_Detail['displayName']} - Email: {Permission_Detail['emailAddress']}")
                             Current_File_ID = Item['id']
 
                         elif Permission_Detail['emailAddress'] not in kwargs['permitted_emails']  and Current_File_ID == Item['id']:
-                            print(f"\033[41m - Accessible by {Permission_Detail['displayName']} - Email: {Permission_Detail['emailAddress']}\033[40m")
+                            Print_Red(f" - Accessible by {Permission_Detail['displayName']} - Email: {Permission_Detail['emailAddress']}")
 
                 elif "non_permitted_emails" in kwargs:
                     
                     for Permission_Detail in Permission_Details:
 
                         if Permission_Detail['emailAddress'] in kwargs['non_permitted_emails'] and Current_File_ID != Item['id']:
-                            print(f"\033[41mFile ID: {Item['id']} - Name: {Item['name']} - Accessible by {Permission_Detail['displayName']} - Email: {Permission_Detail['emailAddress']}\033[40m")
+                            Print_Red(f"File ID: {Item['id']} - Name: {Item['name']} - Accessible by {Permission_Detail['displayName']} - Email: {Permission_Detail['emailAddress']}")
                             Current_File_ID = Item['id']
 
                         elif Permission_Detail['emailAddress'] in kwargs['non_permitted_emails'] and Current_File_ID == Item['id']:
-                            print(f"\033[41m - Accessible by {Permission_Detail['displayName']} - Email: {Permission_Detail['emailAddress']}\033[40m")
+                            Print_Red(f" - Accessible by {Permission_Detail['displayName']} - Email: {Permission_Detail['emailAddress']}")
 
                 else:
                     sys.exit('[-] No valid keyword arguments supplied.')
