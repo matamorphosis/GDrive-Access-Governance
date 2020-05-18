@@ -1,7 +1,6 @@
 #!/usr/bin/python3
-# Google Drive External User Governance Tool Version 2.2.
-import pickle, os.path, sys, argparse, time, colorama
-from multiprocessing import Pool, cpu_count
+# Google Drive External User Governance Tool Version 1.2.
+import pickle, os.path, sys, argparse, multiprocessing, colorama, multiprocessing.pool as mpool
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
@@ -11,11 +10,6 @@ Scope = ['https://www.googleapis.com/auth/drive.metadata.readonly']
 Exclude_Directories = ""
 Include_Directories = ""
 colorama.init()
-start = time.time()
-
-def Write_Out(Output_File_Name):
-    f = open(Output_File_Name,'w')
-    sys.stdout = f
 
 def Print_Red(To_Print):
     Start = "\033[1;31m"
@@ -27,7 +21,7 @@ def Read_File(File_Name):
     try:
         with open(File_Name) as File:
             File_Contents = File.readlines()
-
+        # you may also want to remove whitespace characters like `\n` at the end of each line
         File_Contents_List = [x.strip() for x in File_Contents]
         print(f"[+] Contents of Provided File:")
         print(f", ".join(File_Contents_List))
@@ -66,79 +60,119 @@ class Main:
         except Exception as e:
             sys.exit(f'[-] {str(e)}')
 
-    def Iteration(self, Item):
-
-        try:
-            File_Permissions = self.Service.permissions().list(fileId=Item["id"], fields="*").execute()
-            Permission_Details = File_Permissions.get('permissions', [])
-            Current_File_ID = ""
-            Current_Prints = []
-
-            if "permitted_domains" in self.kwargs:
-
-                for Permission_Detail in Permission_Details:
-
-                    if any(substring not in Permission_Detail['emailAddress'] for substring in self.kwargs['permitted_domains']) and Current_File_ID != Item['id']:
-                        Print_Red("\n".join(Current_Prints))
-                        Current_File_ID = Item['id']
-                        Current_Prints = []
-                        Current_Prints.append(f"File ID: {Item['id']} - File Name: {Item['name']}\n - Accessible by {Permission_Detail['displayName']} - Email: {Permission_Detail['emailAddress']}")
-
-                    elif any(substring not in Permission_Detail['emailAddress'] for substring in self.kwargs['permitted_domains']) and Current_File_ID == Item['id']:
-                        Current_Prints.append(f" - Accessible by {Permission_Detail['displayName']} - Email: {Permission_Detail['emailAddress']}")
-
-            elif "non_permitted_domains" in self.kwargs:
-
-                for Permission_Detail in Permission_Details:
-
-                    if any(substring in Permission_Detail['emailAddress'] for substring in self.kwargs['non_permitted_domains']) and Current_File_ID != Item['id']:
-                        Print_Red("\n".join(Current_Prints))
-                        Current_File_ID = Item['id']
-                        Current_Prints = []
-                        Current_Prints.append(f"File ID: {Item['id']} - File Name: {Item['name']}\n - Accessible by {Permission_Detail['displayName']} - Email: {Permission_Detail['emailAddress']}")
-
-                    elif any(substring in Permission_Detail['emailAddress'] for substring in self.kwargs['non_permitted_domains']) and Current_File_ID == Item['id']:
-                        Current_Prints.append(f" - Accessible by {Permission_Detail['displayName']} - Email: {Permission_Detail['emailAddress']}")
-
-            elif "permitted_emails" in self.kwargs:
-
-                for Permission_Detail in Permission_Details:
-
-                    if Permission_Detail['emailAddress'] not in self.kwargs['permitted_emails'] and Current_File_ID != Item['id']:
-                        Print_Red("\n".join(Current_Prints))
-                        Current_File_ID = Item['id']
-                        Current_Prints = []
-                        Current_Prints.append(f"File ID: {Item['id']} - File Name: {Item['name']}\n - Accessible by {Permission_Detail['displayName']} - Email: {Permission_Detail['emailAddress']}")
-
-                    elif Permission_Detail['emailAddress'] not in self.kwargs['permitted_emails'] and Current_File_ID == Item['id']:
-                        Current_Prints.append(f" - Accessible by {Permission_Detail['displayName']} - Email: {Permission_Detail['emailAddress']}")
-
-            elif "non_permitted_emails" in self.kwargs:
-
-                for Permission_Detail in Permission_Details:
-
-                    if Permission_Detail['emailAddress'] in self.kwargs['non_permitted_emails'] and Current_File_ID != Item['id']:
-                        Print_Red("\n".join(Current_Prints))
-                        Current_File_ID = Item['id']
-                        Current_Prints = []
-                        Current_Prints.append(f"File ID: {Item['id']} - File Name: {Item['name']}\n - Accessible by {Permission_Detail['displayName']} - Email: {Permission_Detail['emailAddress']}")
-
-                    elif Permission_Detail['emailAddress'] in self.kwargs['non_permitted_emails'] and Current_File_ID == Item['id']:
-                        Current_Prints.append(f" - Accessible by {Permission_Detail['displayName']} - Email: {Permission_Detail['emailAddress']}")
-
-            else:
-                sys.exit('[-] No valid keyword arguments supplied.')
-
-            if Current_Prints != []:
-                Print_Red("\n".join(Current_Prints))
-                Current_Prints = []
-
-        except:
-            pass
-
     def Governance_Check(self, Page_Size, **kwargs):
-        procs = []
-        self.kwargs = kwargs
+
+        def nextPageTokenIteration(self, Item, kwargs):
+
+            try:
+                File_Permissions = self.Service.permissions().list(fileId=Item["id"], fields="*").execute()
+                Permission_Details = File_Permissions.get('permissions', [])
+                Current_File_ID = ""
+
+                if "permitted_domains" in kwargs:
+                    
+                    for Permission_Detail in Permission_Details:
+
+                        if any(substring not in Permission_Detail['emailAddress'] for substring in kwargs['permitted_domains']) and Current_File_ID != Item['id']:
+                            Print_Red(f"File ID: {Item['id']} - File Name: {Item['name']}\n - Accessible by {Permission_Detail['displayName']} - Email: {Permission_Detail['emailAddress']}")
+                            Current_File_ID = Item['id']
+
+                        elif any(substring not in Permission_Detail['emailAddress'] for substring in kwargs['permitted_domains']) and Current_File_ID == Item['id']:
+                            Print_Red(f" - Accessible by {Permission_Detail['displayName']} - Email: {Permission_Detail['emailAddress']}")
+
+                elif "non_permitted_domains" in kwargs:
+                    
+                    for Permission_Detail in Permission_Details:
+
+                        if any(substring in Permission_Detail['emailAddress'] for substring in kwargs['non_permitted_domains']) and Current_File_ID != Item['id']:
+                            Print_Red(f"File ID: {Item['id']} - Name: {Item['name']} - Accessible by {Permission_Detail['displayName']} - Email: {Permission_Detail['emailAddress']}")
+                            Current_File_ID = Item['id']
+
+                        elif any(substring in Permission_Detail['emailAddress'] for substring in kwargs['non_permitted_domains']) and Current_File_ID == Item['id']:
+                            Print_Red(f" - Accessible by {Permission_Detail['displayName']} - Email: {Permission_Detail['emailAddress']}")
+
+                elif "permitted_emails" in kwargs:
+                    
+                    for Permission_Detail in Permission_Details:
+
+                        if Permission_Detail['emailAddress'] not in kwargs['permitted_emails']  and Current_File_ID != Item['id']:
+                            Print_Red(f"File ID: {Item['id']} - Name: {Item['name']} - Accessible by {Permission_Detail['displayName']} - Email: {Permission_Detail['emailAddress']}")
+                            Current_File_ID = Item['id']
+
+                        elif Permission_Detail['emailAddress'] not in kwargs['permitted_emails']  and Current_File_ID == Item['id']:
+                            Print_Red(f" - Accessible by {Permission_Detail['displayName']} - Email: {Permission_Detail['emailAddress']}")
+
+                elif "non_permitted_emails" in kwargs:
+                    
+                    for Permission_Detail in Permission_Details:
+
+                        if Permission_Detail['emailAddress'] in kwargs['non_permitted_emails'] and Current_File_ID != Item['id']:
+                            Print_Red(f"File ID: {Item['id']} - Name: {Item['name']} - Accessible by {Permission_Detail['displayName']} - Email: {Permission_Detail['emailAddress']}")
+                            Current_File_ID = Item['id']
+
+                        elif Permission_Detail['emailAddress'] in kwargs['non_permitted_emails'] and Current_File_ID == Item['id']:
+                            Print_Red(f" - Accessible by {Permission_Detail['displayName']} - Email: {Permission_Detail['emailAddress']}")
+
+            except:
+                pass
+
+        def OtherIteration(self, Item, kwargs):
+
+            try:
+                File_Permissions = self.Service.permissions().list(fileId=Item["id"], fields="*").execute()
+                Permission_Details = File_Permissions.get('permissions', [])
+                Current_File_ID = ""
+
+                if "permitted_domains" in kwargs:
+                    
+                    for Permission_Detail in Permission_Details:
+
+                        if any(substring not in Permission_Detail['emailAddress'] for substring in kwargs['permitted_domains']) and Current_File_ID != Item['id']:
+                            Print_Red(f"File ID: {Item['id']} - File Name: {Item['name']}\n - Accessible by {Permission_Detail['displayName']} - Email: {Permission_Detail['emailAddress']}")
+                            Current_File_ID = Item['id']
+
+                        elif any(substring not in Permission_Detail['emailAddress'] for substring in kwargs['permitted_domains']) and Current_File_ID == Item['id']:
+                            Print_Red(f" - Accessible by {Permission_Detail['displayName']} - Email: {Permission_Detail['emailAddress']}")
+
+                elif "non_permitted_domains" in kwargs:
+                    
+                    for Permission_Detail in Permission_Details:
+
+                        if any(substring in Permission_Detail['emailAddress'] for substring in kwargs['non_permitted_domains']) and Current_File_ID != Item['id']:
+                            Print_Red(f"File ID: {Item['id']} - Name: {Item['name']} - Accessible by {Permission_Detail['displayName']} - Email: {Permission_Detail['emailAddress']}")
+                            Current_File_ID = Item['id']
+
+                        elif any(substring in Permission_Detail['emailAddress'] for substring in kwargs['non_permitted_domains']) and Current_File_ID == Item['id']:
+                            Print_Red(f" - Accessible by {Permission_Detail['displayName']} - Email: {Permission_Detail['emailAddress']}")
+
+                elif "permitted_emails" in kwargs:
+                    
+                    for Permission_Detail in Permission_Details:
+
+                        if Permission_Detail['emailAddress'] not in kwargs['permitted_emails']  and Current_File_ID != Item['id']:
+                            Print_Red(f"File ID: {Item['id']} - Name: {Item['name']} - Accessible by {Permission_Detail['displayName']} - Email: {Permission_Detail['emailAddress']}")
+                            Current_File_ID = Item['id']
+
+                        elif Permission_Detail['emailAddress'] not in kwargs['permitted_emails']  and Current_File_ID == Item['id']:
+                            Print_Red(f" - Accessible by {Permission_Detail['displayName']} - Email: {Permission_Detail['emailAddress']}")
+
+                elif "non_permitted_emails" in kwargs:
+                    
+                    for Permission_Detail in Permission_Details:
+
+                        if Permission_Detail['emailAddress'] in kwargs['non_permitted_emails'] and Current_File_ID != Item['id']:
+                            Print_Red(f"File ID: {Item['id']} - Name: {Item['name']} - Accessible by {Permission_Detail['displayName']} - Email: {Permission_Detail['emailAddress']}")
+                            Current_File_ID = Item['id']
+
+                        elif Permission_Detail['emailAddress'] in kwargs['non_permitted_emails'] and Current_File_ID == Item['id']:
+                            Print_Red(f" - Accessible by {Permission_Detail['displayName']} - Email: {Permission_Detail['emailAddress']}")
+
+                else:
+                    sys.exit('[-] No valid keyword arguments supplied.')
+
+            except:
+                pass
+
 
         if Exclude_Directories:
             Response = self.Service.files().list(q="mimeType='application/vnd.google-apps.folder'", pageSize=Page_Size, fields="nextPageToken, files(id, name)",).execute()
@@ -190,8 +224,8 @@ class Main:
                                         else:
                                             print(f'[+] Searching for Potential Access Violations.')
 
-                                            with Pool(cpu_count()) as p:
-                                                p.map(self.Iteration, Current_Result_Items)
+                                            for Item in Current_Result_Items:
+                                                OtherIteration(self, Item, kwargs,)
 
                     Response = self.Service.files().list(q=f"'{Parent['id']}' in parents", pageSize=Page_Size, pageToken=Response['nextPageToken'], fields="nextPageToken, files(id, name)",).execute()
                     Page += 1
@@ -240,8 +274,8 @@ class Main:
                                     else:
                                         print(f'[+] Searching for Potential Access Violations.')
 
-                                        with Pool(cpu_count()) as p:
-                                            p.map(self.Iteration, Current_Result_Items)
+                                        for Item in Current_Result_Items:
+                                            OtherIteration(self, Item, kwargs,)
 
         elif Include_Directories:
             Response = self.Service.files().list(q="mimeType='application/vnd.google-apps.folder'", pageSize=Page_Size, fields="nextPageToken, files(id, name)",).execute()
@@ -293,8 +327,8 @@ class Main:
                                         else:
                                             print(f'[+] Searching for Potential Access Violations.')
 
-                                            with Pool(cpu_count()) as p:
-                                                p.map(self.Iteration, Current_Result_Items)
+                                            for Item in Current_Result_Items:
+                                                OtherIteration(self, Item, kwargs,)
 
                     Page += 1
                     Page_Start += Page_Size
@@ -342,8 +376,8 @@ class Main:
                                     else:
                                         print(f'[+] Searching for Potential Access Violations.')
 
-                                        with Pool(cpu_count()) as p:
-                                            p.map(self.Iteration, Current_Result_Items)
+                                        for Item in Current_Result_Items:
+                                            OtherIteration(self, Item, kwargs,)
 
         else:
             Response = self.Service.files().list(pageSize=Page_Size, fields="nextPageToken, files(id, name)",).execute()
@@ -361,8 +395,8 @@ class Main:
                     else:
                         print(f"[+] Pages broken down into {str(Page_Size)} results at a time. Searching for potential access violations on page {str(Page)}. Searching through results {str(Page_Start + 1)} to {str(Page_Start + Page_Size)}")
 
-                        with Pool(cpu_count()) as p:
-                            p.map(self.Iteration, Result_Items)
+                        for Item in Result_Items:
+                            nextPageTokenIteration(self, Item, kwargs,)
 
                     Response = self.Service.files().list(pageSize=Page_Size, pageToken=Response['nextPageToken'], fields="nextPageToken, files(id, name)",).execute()
                     Page += 1
@@ -377,8 +411,8 @@ class Main:
                 else:
                     print(f'[+] Searching for Potential Access Violations.')
 
-                    with Pool(cpu_count()) as p:
-                        p.map(self.Iteration, Result_Items)
+                    for Item in Result_Items:
+                        OtherIteration(self, Item, kwargs,)
 
 if __name__ == '__main__':
     Page_Size_Int = 1000
@@ -392,7 +426,6 @@ if __name__ == '__main__':
         Parser.add_argument('-id', '--includingdirectories', help='This optional, additional parameter can be used to specify a file with directories you want to search within. This can be useful when searching a large Google Drive, or when you know the breaching of a certain directory\'s files are of higher risk than other directories. To run: ./Google_Drive_Governance -pd domains.txt -id directories.txt')
         Parser.add_argument('-ed', '--excludingdirectories', help='This optional, additional parameter can be used to specify a file with directories you want to skip searching. To run: ./Google_Drive_Governance -pd domains.txt -ed directories.txt')
         Parser.add_argument('-ps', '--pagesize', type=int, help='This optional argument specifies the how many results are returned in each request. The largest number available is 1000 and this is also the default length. ./Google_Drive_Governance -ne emails.txt -ps 1000')
-        Parser.add_argument('-o', '--outputfile', help='Name of file you want to save terminal output to. ./Google_Drive_Governance -ne emails.txt -o file.txt')
         Arguments = Parser.parse_args()
 
         if Arguments.includingdirectories and Arguments.excludingdirectories:
@@ -420,9 +453,6 @@ if __name__ == '__main__':
             except Exception as e:
                 sys.exit(f'[-] {str(e)}')
 
-        if Arguments.outputfile:
-            Write_Out(Arguments.outputfile)
-
         Google_Drive = Main('credentials.json')
 
         if Arguments.permitteddomain:
@@ -444,7 +474,7 @@ if __name__ == '__main__':
         else:
             sys.exit("[-] No argument supplied.")
 
-        sys.exit("[+] Finished. Execution time = {0:.5f}.".format(time.time() - start))
+        sys.exit('[+] Finished.')
 
     except Exception as e:
         sys.exit(f'[-] {str(e)}')
