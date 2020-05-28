@@ -16,7 +16,7 @@ Please refer to the installation guide, in the installation folder.
 
 ### Dashboard
 The dashboard is very simple and just shows the number of open findings, and certified findings. The difference is explained in the Results section below.
-![Dashboard](/images/Dashboard.png)
+![Dashboard](/installation/images/Dashboard.png)
 
 ### Domain Tasks and Email Tasks
 Domain Tasks and Email Tasks are almost identical, where the only difference is a domain task searches for email addresses that fall under a domain name, whereas an email task searches for specifical email addresses.  
@@ -24,28 +24,28 @@ Domain Tasks and Email Tasks are almost identical, where the only difference is 
 In both scenarios you can create, delete, and execute tasks. With the option of narrowing your search down to specific directories within your target Google Drive. Based on the parameters the tool will find any users that have access to files in your Google Drive that meet the specify
 
 **Creating a Domain Task**
-![Domain_Task_1](/images/Domain_Task_1.png)
-![Domain_Task_2](/images/Domain_Task_2.png)
+![Domain_Task_1](/installation/images/Domain_Task_1.png)
+![Domain_Task_2](/installation/images/Domain_Task_2.png)
 
 **Creating an Email Task**
-![Email_Task_1](/images/Email_Task_1.png)
+![Email_Task_1](/installation/images/Email_Task_1.png)
 
 **Creating an Email Task Within a Specified Directory**
-![Email_Task_2](/images/Email_Task_2.png)
-![Email_Task_3](/images/Email_Task_3.png)
+![Email_Task_2](/installation/images/Email_Task_2.png)
+![Email_Task_3](/installation/images/Email_Task_3.png)
 
 ### Results
 There are two kinds of results, open and certified. Initially all results will be open, at which point you can choose to either certify or revoke each result. Each result represents access a user has to a file. Certifying access moves them into a seperate table in the database, these results can be viewed on the Certified Results page. On the other hand, revoking access removes that email addresses rights to access and edit the file.
 
 **Open Results**
-![Open_Results_1](/images/Open_Results_1.png)
-![Open_Results_2](/images/Open_Results_2.png)
+![Open_Results_1](/installation/images/Open_Results_1.png)
+![Open_Results_2](/installation/images/Open_Results_2.png)
 
 **Certified Results**
-![Certified_Result](/images/Certified_Result.png)
+![Certified_Result](/installation/images/Certified_Result.png)
 
 Finally if you navigate back to the Dashboard you would see that certified results have now increased:
-![FInal_Dashboard](/images/FInal_Dashboard.png)
+![FInal_Dashboard](/installation/images/FInal_Dashboard.png)
 
 ## Script Usage
 There are four options for running this tool:  
@@ -78,4 +78,4 @@ Lastly, there is one additional argument -ps or --pagesize. This argument contro
 
 Below there is an example of the output that can be expected. The names and email addresses have been excluded for privacy purposes.
 
-![Results](/images/Example_Output.png)
+![Results](/installation/images/Example_Output.png)
