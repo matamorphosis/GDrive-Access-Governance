@@ -1,29 +1,53 @@
 # Google Drive Access Governance
 A simple snitch tool which alerts any Google Drive user who has access to their files who may pose a security risk.  
-**Version 2.2 Now Available**
-- Restrict searches by Google Drive directories.
-- Code efficiency improvements and bug fixes.
-- Improved concurrency.  
-
-As a result of the improved concurrency, the tool has a known execution bug on Windows. This is currently under investigation. If you are running on Windows please use v2.1.
+**Web Application Appliance Now Available**
+- GUI to interact with the script
+- Revoke functionality for the web application.
 
 ## Use Cases
 For small businesses using Google Suite, Google provides built in access controls for all users within that company's Google Suite; however, what if someone in the business shares files within Google Drive with someone outside the organisation? This tool provides a simple and effective way of returning any files that can be accessed by potentially untrusted persons.
 
 Additionally this tool is recommended for promoting personal security too by allowing individuals to govern who they give access to.
 
-## Installation
-1. To set this up start by cloning this repository and navigating to the directory:
-```
-user@linux:~$ git clone https://github.com/matamorphosis/GDrive-Access-Governance && cd GDrive-Access-Governance
-```
-2. Install python requirements using the requirements.txt file in the directory:
-```
-user@linux:~/Path/to/GDrive-Access-Governance/$ pip3 install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib
-```
-3. You will need a credentials.json file. To obtain this log into your Google Account and navigate to https://developers.google.com/drive/api/v3/quickstart/python, then click the blue button called "Enable the Drive API". A pop-up box should come up and there will be another blue button called "DOWNLOAD CLIENT CONFIGURATION". Click this button to download your credentials.json file and then move it to your GDrive-Access-Governance directory.
+## Installation  
+Please refer to the installation guide, in the installation folder.
 
-## Usage
+## Web Application Usage
+
+### Dashboard
+The dashboard is very simple and just shows the number of open findings, and certified findings. The difference is explained in the Results section below.
+![Dashboard](/images/Dashboard.png)
+
+### Domain Tasks and Email Tasks
+Domain Tasks and Email Tasks are almost identical, where the only difference is a domain task searches for email addresses that fall under a domain name, whereas an email task searches for specifical email addresses.  
+  
+In both scenarios you can create, delete, and execute tasks. With the option of narrowing your search down to specific directories within your target Google Drive. Based on the parameters the tool will find any users that have access to files in your Google Drive that meet the specify
+
+**Creating a Domain Task**
+![Domain_Task_1](/images/Domain_Task_1.png)
+![Domain_Task_2](/images/Domain_Task_2.png)
+
+**Creating an Email Task**
+![Email_Task_1](/images/Email_Task_1.png)
+
+**Creating an Email Task Within a Specified Directory**
+![Email_Task_2](/images/Email_Task_2.png)
+![Email_Task_3](/images/Email_Task_3.png)
+
+### Results
+There are two kinds of results, open and certified. Initially all results will be open, at which point you can choose to either certify or revoke each result. Each result represents access a user has to a file. Certifying access moves them into a seperate table in the database, these results can be viewed on the Certified Results page. On the other hand, revoking access removes that email addresses rights to access and edit the file.
+
+**Open Results**
+![Open_Results_1](/images/Open_Results_1.png)
+![Open_Results_2](/images/Open_Results_2.png)
+
+**Certified Results**
+![Certified_Result](/images/Certified_Result.png)
+
+Finally if you navigate back to the Dashboard you would see that certified results have now increased:
+![FInal_Dashboard](/images/FInal_Dashboard.png)
+
+## Script Usage
 There are four options for running this tool:  
 1. Permitted Email Addresses - a text file containing email addresses that are safe. (Will report any files that can be accessed by email addresses that are not in the file.)
 ```
@@ -54,4 +78,4 @@ Lastly, there is one additional argument -ps or --pagesize. This argument contro
 
 Below there is an example of the output that can be expected. The names and email addresses have been excluded for privacy purposes.
 
-![Results](/Example_Output.png)
+![Results](/images/Example_Output.png)

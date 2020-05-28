@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="Google Drive Access Governance.">
+        <title>Google Drive Access Governance</title>
+        <link rel="icon" href="{{ url_for('static', filename='icons/main.ico') }}" />
+        <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/main.ico') }}" />
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/template.css') }}"/>
+    </head>
+    <body>
+        <nav class="navbar">
+            <header>
+                <div class="logo"></div>
+            </header>
+            <div class="container">
+                <ul class="main-nav">
+                    <li><a href="{{ url_for('index') }}">HOME</a></li><li><a href="{{ url_for('email_tasks') }}">EMAIL TASKS</a></li><li><a href="{{ url_for('domain_tasks') }}">DOMAIN TASKS</a></li><li><a href="{{ url_for('results') }}">OPEN RESULTS</a></li><li><a href="{{ url_for('results_certified') }}">CERTIFIED RESULTS</a></li>
+                </ul>
+            </div>
+        </nav>
+    {% block content %}
+    {% endblock %}
+    </body>
+</html>

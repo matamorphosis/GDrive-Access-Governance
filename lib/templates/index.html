@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="SGoogle Drive Access Governance Home.">
+      <link rel="icon" href="{{ url_for('static', filename='icons/main.ico') }}" />
+      <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/main.ico') }}" />
+      <title>Google Drive Access Governance Home</title>
+   </head>
+   <body>
+      {% extends "template.html" %}
+      {% block content %}
+      <main>
+         <div class="dashboard_field-container">
+            <section>
+               <div class="dashboard_large_outer_div">
+                   <div class="dashboard_large_div">
+                       <div class="dashboard_small_outer_div">
+                           <div class="dashboard_div"><p class="dashboard_p">Open Findings</p><p id="dash_number_left">{{Open_Results_Total}}</p></div>
+                       </div>
+                       <div class="dashboard_small_outer_right_div">
+                           <div class="dashboard_div"><p class="dashboard_p">Certified Users</p><p id="dash_number_right">{{Certified_Results_Total}}</p></div>
+                       </div>
+                   </div>
+               </div>
+            </section>
+        </div>
+      </main>
+      {% endblock %}
+   </body>
+</html>
