@@ -78,4 +78,4 @@ Lastly, there is one additional argument -ps or --pagesize. This argument contro
 
 Below there is an example of the output that can be expected. The names and email addresses have been excluded for privacy purposes.
 
-![Results](/installation/images/Example_Output.png)
+![Results](/installation/images/Example_Terminal_Output.png)
