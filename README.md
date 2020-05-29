@@ -1,4 +1,8 @@
+**If you're enjoying this tool, feel free to buy me a cup of coffee :)**  
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.me/matamorphosis?locale.x=en_AU)
+
 # Google Drive Access Governance
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)  
 A simple snitch tool which alerts any Google Drive user who has access to their files who may pose a security risk.  
 **Web Application Appliance Now Available**
 - GUI to interact with the script
