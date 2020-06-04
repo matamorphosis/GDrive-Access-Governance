@@ -35,10 +35,10 @@ In both scenarios you can create, delete, and execute tasks. With the option of 
 **Creating an Email Task**
 ![Email_Task_1](/installation/images/Email_Task_1.png)
 
-**Creating an Email Task Within a Specified Directory with Auto-Revoke Enabled**
+**Creating an Email Task within a Specified Directory with Auto-Revoke Enabled**
 ![Email_Task_3](/installation/images/Email_Task_3.png)
 
-**Creating an Email Task Within a Specified Directory**
+**Creating an Email Task within a Specified Directory**
 ![Email_Task_2](/installation/images/Email_Task_2.png)
 ![Email_Task_4](/installation/images/Email_Task_4.png)
 
