@@ -4,6 +4,7 @@ create table domain_tasks (
     run_status   text not null,
     domains      text not null,
     permitted    text not null,
+    autofunc     text,
     directories  text,
     included     text
 );
@@ -14,6 +15,7 @@ create table email_tasks (
     run_status   text not null,
     emails       text not null,
     permitted    text not null,
+    autofunc     text,
     directories  text,
     included     text
 );

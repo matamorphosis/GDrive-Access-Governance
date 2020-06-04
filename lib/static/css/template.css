@@ -574,14 +574,14 @@ table.dataTable,table.dataTable th,table.dataTable td
     display: inline-block;
     border: 1px solid #303030;
     border-radius: 0px;
-    width: 35%;
+    width: 45%;
 }
 
 .dashboard_small_outer_right_div {
     display: inline-block;
     border: 1px solid #303030;
     border-radius: 0px;
-    width: 35%;
+    width: 45%;
 }
 
 .dashboard_large_div {
@@ -908,6 +908,14 @@ table.dataTable tbody td .regulartab {
     padding-top: 30px;
 }
 
+#auto_label {
+	text-align: left;
+}
+
+#auto_label label {
+	font-size: 10pt;
+}
+
 #bottom_form {
 	width: 100%;
 }
@@ -915,6 +923,20 @@ table.dataTable tbody td .regulartab {
 #bottom-form {
 	bottom: 8px;
 	position: absolute;
+}
+
+#chart1 {
+   /*width: 600px;*/
+   width: 75%;
+   height: 450px;
+   padding: 25px 0px 25px 0px;
+}
+
+#chart2 {
+   /*width: 600px;*/
+   width: 75%;
+   height: 450px;
+   padding: 25px 0px 25px 0px;
 }
 
 #dash_number_left {

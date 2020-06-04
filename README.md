@@ -7,6 +7,7 @@ A simple snitch tool which alerts any Google Drive user who has access to their 
 **Web Application Appliance Now Available**
 - GUI to interact with the script
 - Revoke functionality for the web application.
+- New Auto-Revoke and Auto-Certify abilities for tasks.
 
 ## Use Cases
 For small businesses using Google Suite, Google provides built in access controls for all users within that company's Google Suite; however, what if someone in the business shares files within Google Drive with someone outside the organisation? This tool provides a simple and effective way of returning any files that can be accessed by potentially untrusted persons.
@@ -19,13 +20,13 @@ Please refer to the installation guide, in the installation folder.
 ## Web Application Usage
 
 ### Dashboard
-The dashboard is very simple and just shows the number of open findings, and certified findings. The difference is explained in the Results section below.
+The dashboard shows the number of open findings and certified findings as well as the number of email tasks and domain tasks. These are displayed in two separate Pie-Charts accordingly. The difference between open findings and certified findings is explained in the Results section below.
 ![Dashboard](/installation/images/Dashboard.png)
 
 ### Domain Tasks and Email Tasks
 Domain Tasks and Email Tasks are almost identical, where the only difference is a domain task searches for email addresses that fall under a domain name, whereas an email task searches for specifical email addresses.  
   
-In both scenarios you can create, delete, and execute tasks. With the option of narrowing your search down to specific directories within your target Google Drive. Based on the parameters the tool will find any users that have access to files in your Google Drive that meet the specify
+In both scenarios you can create, delete, and execute tasks. With the option of narrowing your search down to specific directories within your target Google Drive. Additionally, the option to either certify results or revoke results automatically is available, but should be only used when the user is 100% certain that is the action they want to take. Based on the parameters the tool will find any users that have access to files in your Google Drive that meet the conditions. Auto-Certify will move results immediately into the Certified Results database, which will protect the users against revocation, and being added to the Open Results database if re-discovered. Auto-Revoke will revoke any rights assigned to users who are discovered for both new results and open results.
 
 **Creating a Domain Task**
 ![Domain_Task_1](/installation/images/Domain_Task_1.png)
@@ -34,12 +35,15 @@ In both scenarios you can create, delete, and execute tasks. With the option of 
 **Creating an Email Task**
 ![Email_Task_1](/installation/images/Email_Task_1.png)
 
-**Creating an Email Task Within a Specified Directory**
-![Email_Task_2](/installation/images/Email_Task_2.png)
+**Creating an Email Task Within a Specified Directory with Auto-Revoke Enabled**
 ![Email_Task_3](/installation/images/Email_Task_3.png)
 
+**Creating an Email Task Within a Specified Directory**
+![Email_Task_2](/installation/images/Email_Task_2.png)
+![Email_Task_4](/installation/images/Email_Task_4.png)
+
 ### Results
-There are two kinds of results, open and certified. Initially all results will be open, at which point you can choose to either certify or revoke each result. Each result represents access a user has to a file. Certifying access moves them into a seperate table in the database, these results can be viewed on the Certified Results page. On the other hand, revoking access removes that email addresses rights to access and edit the file.
+There are two kinds of results, open and certified. Initially all discovered results will be open (Except for when either Auto-Certify or Auto-Revoke are turned on), at which point you can choose to either certify or revoke each result manually. Each result represents access a user has to a file. Certifying access moves them into a seperate table in the database, these results can be viewed on the Certified Results page. On the other hand, revoking access removes that email addresses rights to access and edit the file and deletes them from the open results database.
 
 **Open Results**
 ![Open_Results_1](/installation/images/Open_Results_1.png)
@@ -47,9 +51,6 @@ There are two kinds of results, open and certified. Initially all results will b
 
 **Certified Results**
 ![Certified_Result](/installation/images/Certified_Result.png)
-
-Finally if you navigate back to the Dashboard you would see that certified results have now increased:
-![FInal_Dashboard](/installation/images/FInal_Dashboard.png)
 
 ## Script Usage
 There are four options for running this tool:  

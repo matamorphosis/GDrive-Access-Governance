@@ -98,26 +98,26 @@ if __name__ == "__main__":
             Thread_0.join()
 
             Permitted = Result[4]
-            Directories = Result[5]
-            Included = Result[6]
+            Directories = Result[6]
+            Included = Result[7]
 
             if Directories and str(Included) == "True" and str(Permitted) == "True":
-                Thread_1 = threading.Thread(target=Google_Drive.Governance_Check, args=(Page_Size,), kwargs={f"permitted_{self.task_type.lower()}": Result[3].split(", "), "Included_Directories": Directories.split(", "),})
+                Thread_1 = threading.Thread(target=Google_Drive.Governance_Check, args=(Page_Size,), kwargs={f"permitted_{self.task_type.lower()}": Result[3].split(", "), "Auto Function": Result[5],"Included_Directories": Directories.split(", "),})
 
             elif Directories and str(Included) == "False" and str(Permitted) == "True":
-                Thread_1 = threading.Thread(target=Google_Drive.Governance_Check, args=(Page_Size,), kwargs={f"permitted_{self.task_type.lower()}": Result[3].split(", "), "Excluded_Directories": Directories.split(", "),})
+                Thread_1 = threading.Thread(target=Google_Drive.Governance_Check, args=(Page_Size,), kwargs={f"permitted_{self.task_type.lower()}": Result[3].split(", "), "Auto Function": Result[5], "Excluded_Directories": Directories.split(", "),})
 
             elif Directories and str(Included) == "True" and str(Permitted) == "False":
-                Thread_1 = threading.Thread(target=Google_Drive.Governance_Check, args=(Page_Size,), kwargs={f"non_permitted_{self.task_type.lower()}": Result[3].split(", "), "Included_Directories": Directories.split(", "),})
+                Thread_1 = threading.Thread(target=Google_Drive.Governance_Check, args=(Page_Size,), kwargs={f"non_permitted_{self.task_type.lower()}": Result[3].split(", "), "Auto Function": Result[5], "Included_Directories": Directories.split(", "),})
 
             elif Directories and str(Included) == "False" and str(Permitted) == "False":
-                Thread_1 = threading.Thread(target=Google_Drive.Governance_Check, args=(Page_Size,), kwargs={f"non_permitted_{self.task_type.lower()}": Result[3].split(", "), "Excluded_Directories": Directories.split(", "),})
+                Thread_1 = threading.Thread(target=Google_Drive.Governance_Check, args=(Page_Size,), kwargs={f"non_permitted_{self.task_type.lower()}": Result[3].split(", "), "Auto Function": Result[5], "Excluded_Directories": Directories.split(", "),})
 
             elif not Directories and str(Permitted) == "True":
-                Thread_1 = threading.Thread(target=Google_Drive.Governance_Check, args=(Page_Size,), kwargs={f"permitted_{self.task_type.lower()}": Result[3].split(", "),})
+                Thread_1 = threading.Thread(target=Google_Drive.Governance_Check, args=(Page_Size,), kwargs={f"permitted_{self.task_type.lower()}": Result[3].split(", "), "Auto Function": Result[5],})
 
             elif not Directories and str(Permitted) == "False":
-                Thread_1 = threading.Thread(target=Google_Drive.Governance_Check, args=(Page_Size,), kwargs={f"non_permitted_{self.task_type.lower()}": Result[3].split(", "),})
+                Thread_1 = threading.Thread(target=Google_Drive.Governance_Check, args=(Page_Size,), kwargs={f"non_permitted_{self.task_type.lower()}": Result[3].split(", "), "Auto Function": Result[5],})
 
             Thread_1.start()
             Thread_1.join()
@@ -210,8 +210,16 @@ if __name__ == "__main__":
             Open_Results = DB_Cursor.fetchall()
             DB_Cursor.execute("""SELECT * FROM certified_results;""")
             Cert_Results = DB_Cursor.fetchall()
+            DB_Cursor.execute("""SELECT COUNT(*) FROM email_tasks;""")
+            Email_Tasks = DB_Cursor.fetchone()
+            DB_Cursor.execute("""SELECT COUNT(*) FROM domain_tasks;""")
+            Domain_Tasks = DB_Cursor.fetchone()
             Total_Open_Emails = []
             Total_Cert_Emails = []
+            Result_Labels = ["Open Results", "Certified Results"]
+            Task_Labels = ["Email Tasks", "Domain Tasks"]
+            Result_Colors = ["red", "green"]
+            Task_Colors = ["blue", "purple"]
 
             if Open_Results:
 
@@ -225,7 +233,23 @@ if __name__ == "__main__":
                     Current_Emails = Cert_Result[2].split(", ")
                     Total_Cert_Emails += Current_Emails
 
-            return render_template('index.html', Open_Results_Total=str(len(Total_Open_Emails)), Certified_Results_Total=str(len(Total_Cert_Emails)))
+            print(Email_Tasks)
+
+            if not Total_Cert_Emails and not Total_Cert_Emails and Email_Tasks[0] == 0 and Domain_Tasks[0] == 0:
+                return render_template('index.html', Result_Values=None, Task_Values=None)
+
+            elif not Total_Cert_Emails and not Total_Cert_Emails:
+                Task_Values = [Email_Tasks[0], Domain_Tasks[0]]
+                return render_template('index.html', Result_Values=None, Task_Values=zip(Task_Values, Task_Labels, Task_Colors))
+
+            elif Email_Tasks[0] == 0 and Domain_Tasks[0] == 0:
+                Result_Values = [len(Total_Open_Emails), len(Total_Cert_Emails)]
+                return render_template('index.html', Result_Values=zip(Result_Values, Result_Labels, Result_Colors), Task_Values=None)
+
+            else:
+                Result_Values = [len(Total_Open_Emails), len(Total_Cert_Emails)]
+                Task_Values = [Email_Tasks[0], Domain_Tasks[0]]
+                return render_template('index.html', Result_Values=zip(Result_Values, Result_Labels, Result_Colors), Task_Values=zip(Task_Values, Task_Labels, Task_Colors))
 
         except Exception as e:
             app.logger.error(e)
@@ -260,124 +284,141 @@ if __name__ == "__main__":
             app.logger.error(e)
             return redirect(url_for('index'))
 
-    @app.route('/tasks/email/new', methods=['POST'])
+    @app.route('/tasks/email/new', methods=['GET', 'POST'])
     def new_email_task():
 
         try:
 
-            if request.method == 'POST':
+            if 'task_name' in request.form and 'finishtask' in request.form:
 
-                if 'task_name' in request.form and 'finishtask' in request.form:
+                if any(Bad_Char in form_data for Bad_Char in Bad_Characters for form_data in [request.form['task_name'], request.form['task_emails']]):
+                    return render_template('email_tasks.html', newtask=True, error="Please ensure fields do not have any bad special characters.")
 
-                    if any(Bad_Char in form_data for Bad_Char in Bad_Characters for form_data in [request.form['task_name'], request.form['task_emails']]):
-                        return render_template('email_tasks.html', newtask=True, error="Please ensure fields do not have any bad special characters.")
+                if 'emailoptions' in request.form and 'task_emails' in request.form:
+                    DB_Conn = sqlite3.connect(DB_Filename)
 
-                    if 'emailoptions' in request.form and 'task_emails' in request.form:
-                        DB_Conn = sqlite3.connect(DB_Filename)
-
-                        try:
-                            if request.form['emailoptions'] not in ["True", "False"]:
-                                return render_template('email_tasks.html', newtask=True, error="Invalid request, please try again.")
-
-                            else:
-                                Option = request.form['emailoptions']
-                                task_emails = request.form['task_emails'].replace("\r", "")
-                                task_emails = task_emails.replace("\n", ", ")
-
-                                if 'diroptions' in request.form and 'task_directories' in request.form:
-
-                                    if request.form['diroptions'] and request.form['task_directories']:
-
-                                        if any(Bad_Char in request.form['task_directories'] for Bad_Char in Bad_Characters):
-                                            return render_template('email_tasks.html', newtask=True, error="Please ensure fields do not have any bad special characters.")
-
-                                        if request.form['diroptions'] not in ["True", "False"]:
-                                            return render_template('email_tasks.html', newtask=True, error="Invalid request, please try again.")
-
-                                        else:
-                                            Dir_Option = request.form['diroptions']
-                                            task_directories = request.form['task_directories'].replace("\r", "")
-                                            task_directories = task_directories.replace("\n", ", ")
-                                            DB_Conn.executescript(f"""INSERT INTO email_tasks (name, run_status, emails, permitted, directories, included) values ('{request.form['task_name']}', 'Stopped', '{task_emails}', '{Option}', '{task_directories}', '{Dir_Option}');""")
-
-                                    else:
-                                        DB_Conn.executescript(f"""INSERT INTO email_tasks (name, run_status, emails, permitted) values ('{request.form['task_name']}', 'Stopped', '{task_emails}', '{Option}');""")
-
-                                else:
-                                    DB_Conn.executescript(f"""INSERT INTO email_tasks (name, run_status, emails, permitted) values ('{request.form['task_name']}', 'Stopped', '{task_emails}', '{Option}');""")
-
-                        except:
+                    try:
+                        if request.form['emailoptions'] not in ["True", "False"]:
                             return render_template('email_tasks.html', newtask=True, error="Invalid request, please try again.")
 
-                        DB_Conn.commit()
-                        DB_Conn.close()
+                        else:
+                            Option = request.form['emailoptions']
+                            task_emails = request.form['task_emails'].replace("\r", "")
+                            task_emails = task_emails.replace("\n", ", ")
+                            auto_function = "None"
 
-                    return redirect(url_for('email_tasks'))
+                            if 'revoke' in request.form and 'certify' in request.form:
+                                return render_template('email_tasks.html', newtask=True, error="Invalid request, please only select one auto function. Either certify or revoke.")
 
-                else:
-                    return render_template('email_tasks.html', newtask=True)
+                            if 'revoke' in request.form:
+
+                                if request.form['revoke'] == "on":
+                                    auto_function = "Revoke"
+
+                            elif 'certify' in request.form:
+
+                                if request.form['certify'] == "on":
+                                    auto_function = "Certify"
+
+                            if 'diroptions' in request.form and 'task_directories' in request.form:
+
+                                if request.form['diroptions'] and request.form['task_directories']:
+
+                                    if any(Bad_Char in request.form['task_directories'] for Bad_Char in Bad_Characters):
+                                        return render_template('email_tasks.html', newtask=True, error="Please ensure fields do not have any bad special characters.")
+
+                                    if request.form['diroptions'] not in ["True", "False"]:
+                                        return render_template('email_tasks.html', newtask=True, error="Invalid request, please try again.")
+
+                                    else:
+                                        Dir_Option = request.form['diroptions']
+                                        task_directories = request.form['task_directories'].replace("\r", "")
+                                        task_directories = task_directories.replace("\n", ", ")
+                                        DB_Conn.executescript(f"""INSERT INTO email_tasks (name, run_status, emails, permitted, autofunc, directories, included) values ('{request.form['task_name']}', 'Stopped', '{task_emails}', '{Option}', '{auto_function}', '{task_directories}', '{Dir_Option}');""")
+
+                                else:
+                                    DB_Conn.executescript(f"""INSERT INTO email_tasks (name, run_status, emails, permitted, autofunc) values ('{request.form['task_name']}', 'Stopped', '{task_emails}', '{Option}', '{auto_function}');""")
+
+                            else:
+                                DB_Conn.executescript(f"""INSERT INTO email_tasks (name, run_status, emails, permitted, autofunc) values ('{request.form['task_name']}', 'Stopped', '{task_emails}', '{Option}', '{auto_function}');""")
+
+                    except:
+                        return render_template('email_tasks.html', newtask=True, error="Invalid request, please try again.")
+
+                    DB_Conn.commit()
+                    DB_Conn.close()
+
+                return redirect(url_for('email_tasks'))
+
+            else:
+                return render_template('email_tasks.html', newtask=True)
 
         except Exception as e:
             app.logger.error(e)
             return redirect(url_for('email_tasks'))
 
-    @app.route('/tasks/domain/new', methods=['POST'])
+    @app.route('/tasks/domain/new', methods=['GET', 'POST'])
     def new_domain_task():
 
         try:
 
-            if request.method == 'POST':
+            if 'task_name' in request.form and 'finishtask' in request.form:
 
-                if 'task_name' in request.form and 'finishtask' in request.form:
+                if any(Bad_Char in form_data for Bad_Char in Bad_Characters for form_data in [request.form['task_name'], request.form['task_domains']]):
+                    return render_template('domain_tasks.html', newtask=True, error="Please ensure fields do not have any bad special characters.")
 
-                    if any(Bad_Char in form_data for Bad_Char in Bad_Characters for form_data in [request.form['task_name'], request.form['task_domains']]):
-                        return render_template('domain_tasks.html', newtask=True, error="Please ensure fields do not have any bad special characters.")
+                if 'domainoptions' in request.form:
+                    DB_Conn = sqlite3.connect(DB_Filename)
 
-                    if 'domainoptions' in request.form:
-                        DB_Conn = sqlite3.connect(DB_Filename)
+                    if request.form['domainoptions'] not in ["True", "False"]:
+                        return render_template('domain_tasks.html', newtask=True, error="Invalid request, please try again.")
 
-                        try:
+                    else:
+                        Option = request.form['domainoptions']
+                        task_domains = request.form['task_domains'].replace("\r", "")
+                        task_domains = task_domains.replace("\n", ", ")
+                        revoke = "False"
+                        auto_function = "None"
 
-                            if request.form['domainoptions'] not in ["True", "False"]:
-                                return render_template('domain_tasks.html', newtask=True, error="Invalid request, please try again.")
+                        if 'revoke' in request.form:
 
-                            else:
-                                Option = request.form['domainoptions']
-                                task_domains = request.form['task_domains'].replace("\r", "")
-                                task_domains = task_domains.replace("\n", ", ")
+                            if request.form['revoke'] == "on":
+                                auto_function = "Revoke"
 
-                                if 'diroptions' in request.form and 'task_directories' in request.form:
+                        elif 'certify' in request.form:
 
-                                    if request.form['diroptions'] and request.form['task_directories']:
+                            if request.form['certify'] == "on":
+                                auto_function = "Certify"
 
-                                        if any(Bad_Char in request.form['task_directories'] for Bad_Char in Bad_Characters):
-                                            return render_template('domain_tasks.html', newtask=True, error="Please ensure fields do not have any bad special characters.")
+                        if 'diroptions' in request.form and 'task_directories' in request.form:
 
-                                        if request.form['diroptions'] not in ["True", "False"]:
-                                            return render_template('domain_tasks.html', newtask=True, error="Invalid request, please try again.")
+                            if request.form['diroptions'] and request.form['task_directories']:
 
-                                        else:
-                                            Dir_Option = request.form['diroptions']
-                                            task_directories = request.form['task_directories'].replace("\r", "")
-                                            task_directories = task_directories.replace("\n", ", ")
-                                            DB_Conn.executescript(f"""INSERT INTO domain_tasks (name, run_status, domains, permitted, directories, included) values ('{request.form['task_name']}', 'Stopped', '{task_domains}', '{Option}', '{task_directories}', '{Dir_Option}');""")
+                                if any(Bad_Char in request.form['task_directories'] for Bad_Char in Bad_Characters):
+                                    return render_template('domain_tasks.html', newtask=True, error="Please ensure fields do not have any bad special characters.")
 
-                                    else:
-                                        DB_Conn.executescript(f"""INSERT INTO domain_tasks (name, run_status, domains, permitted) values ('{request.form['task_name']}', 'Stopped', '{task_domains}', '{Option}');""")
+                                if request.form['diroptions'] not in ["True", "False"]:
+                                    return render_template('domain_tasks.html', newtask=True, error="Invalid request, please try again.")
 
                                 else:
-                                    DB_Conn.executescript(f"""INSERT INTO domain_tasks (name, run_status, domains, permitted) values ('{request.form['task_name']}', 'Stopped', '{task_domains}', '{Option}');""")
+                                    Dir_Option = request.form['diroptions']
+                                    task_directories = request.form['task_directories'].replace("\r", "")
+                                    task_directories = task_directories.replace("\n", ", ")
+                                    DB_Conn.executescript(f"""INSERT INTO domain_tasks (name, run_status, domains, permitted, autofunc, directories, included) values ('{request.form['task_name']}', 'Stopped', '{task_domains}', '{Option}', '{auto_function}', '{task_directories}', '{Dir_Option}');""")
 
-                        except:
-                            return render_template('domain_tasks.html', newtask=True, error="Invalid request, please try again.")
+                            else:
+                                DB_Conn.executescript(f"""INSERT INTO domain_tasks (name, run_status, domains, permitted, autofunc) values ('{request.form['task_name']}', 'Stopped', '{task_domains}', '{Option}', '{auto_function}');""")
 
-                        DB_Conn.commit()
-                        DB_Conn.close()
+                        else:
+                            DB_Conn.executescript(f"""INSERT INTO domain_tasks (name, run_status, domains, permitted, autofunc) values ('{request.form['task_name']}', 'Stopped', '{task_domains}', '{Option}', '{auto_function}');""")
 
-                    return redirect(url_for('domain_tasks'))
+                    DB_Conn.commit()
+                    DB_Conn.close()
 
-                else:
-                    return render_template('domain_tasks.html', newtask=True)
+                return redirect(url_for('domain_tasks'))
+
+            else:
+                return render_template('domain_tasks.html', newtask=True)
 
         except Exception as e:
             app.logger.error(e)
@@ -443,7 +484,7 @@ if __name__ == "__main__":
             app.logger.error(e)
             return redirect(url_for('domain_tasks'))
 
-    @app.route('/results', methods=['GET'])
+    @app.route('/results/open', methods=['GET'])
     def results():
 
         try:

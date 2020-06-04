@@ -27,7 +27,7 @@
                     <form class="form" action="{{ url_for('new_domain_task') }}" method=post autocomplete="off">
                         <dl>
                             <dd>
-                                <p class="form_message">The first three fields are mandatory, the last two are optional but if included please fill out both.</p>
+                                <p class="form_message"><strong>Info:</strong>&nbsp;The first three fields are mandatory, the last two are optional but if included please fill out both.</p>
                             </dd>
                             <dd>
                                 <input class="field_textarea" name=task_name placeholder="* Task Name" value="">
@@ -36,24 +36,32 @@
                                 <textarea name="task_domains" rows="10" cols="30" placeholder="* Enter domain(s) here, seperated by a new line."></textarea>
                             </dd>
                             <dd class="label_dd">
-                                <label>Are the supplied domains permitted?</label>
+                                <label>Do you want the supplied domains flagged if found or all other domains?</label>
                             </dd>
                             <dd class="post_label">
                                 <select class="bool_form" name="domainoptions" size="2">
-                                    <option value="True">True</option>
-                                    <option value="False">False</option>
+                                    <option value="True">Flag Other Domains</option>
+                                    <option value="False">Flag Supplied Domains</option>
                                 </select>
+                            </dd>
+                            <dd id="auto_label">
+                                <label>Auto-Certify Access for Flagged Users?:&nbsp;</label>
+                                <input onclick="autolabel(this, 'revoke')" type=checkbox id="certify-box" name=certify>
+                            </dd>
+                            <dd id="auto_label">
+                                <label>Auto-Revoke Access for Flagged Users?:&nbsp;</label>
+                                <input onclick="autolabel(this, 'certify')" type=checkbox id="revoke-box" name=revoke>
                             </dd>
                             <dd onclick="show_label()">
                                 <textarea name="task_directories" rows="10" cols="30" placeholder="Enter director(y/ies) here, seperated by a new line."></textarea>
                             </dd>
                             <dd style="display: none;" id="second_label" class="label_dd">
-                                <label>Are the supplied directories included?</label>
+                                <label>Should the search be confined to the directories supplied or avoid searching within them?</label>
                             </dd>
                             <dd id="second_options">
                                 <select id="bottom_form" name="diroptions" size="2">
-                                    <option value="True">True</option>
-                                    <option value="False">False</option>
+                                    <option value="True">Confine Search to Supplied Directories</option>
+                                    <option value="False">Search should Avoid Supplied Directories</option>
                                 </select>
                             </dd>
                             <script type="text/javascript">
@@ -61,6 +69,27 @@
                                 document.getElementById("second_label").style.display = "block";
                                 document.getElementById("bottom_form").className='bool_form';
                                 document.getElementById("second_options").className='post_label';
+                            }
+
+                            function autolabel(element1, element2) {
+                                if(arguments[0].checked === true) {
+                                    if (arguments[1] === "revoke-box"){
+                                        var resp = confirm('Selecting this option will automatically certify access rights of flagged users. You can always manually certify rights for each discovered result later. Are you sure you want to use this option?');
+                                        if (resp == false) {
+                                            arguments[0].checked = false;
+                                            return false;
+                                        }
+                                    } else if (arguments[1] === "certify-box") {
+                                        var resp = confirm('Selecting this option will automatically revoke access rights of flagged users. You can always manually revoke rights for each discovered result later. Are you sure you want to use this option?');
+                                        if (resp == false) {
+                                            arguments[0].checked = false;
+                                            return false;
+                                        }
+                                    }
+                                    document.getElementById(arguments[1]).disabled = true;
+                                } else {
+                                    document.getElementById(arguments[1]).disabled = false;
+                                }
                             }
                             </script>
                         </dl>
@@ -83,6 +112,7 @@
                         <th>Name</th>
                         <th>Domains</th>
                         <th>Permitted</th>
+                        <th>Auto Response</th>
                         <th>Directories</th>
                         <th>Included</th>
                         <th>Functions</th>
@@ -97,6 +127,7 @@
                         <td class="regulartab">{{Task[4]}}</td>
                         <td class="regulartab">{{Task[5]}}</td>
                         <td class="regulartab">{{Task[6]}}</td>
+                        <td class="regulartab">{{Task[7]}}</td>
                         <td class="buttons_in_tasks_table" id="tsk_in_tbl_btns">
                             {% if Task[2] == "Running" %}
                             <form class="task_buttons" action="" method=post autocomplete="off">
