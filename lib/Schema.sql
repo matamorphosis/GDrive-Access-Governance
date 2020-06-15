@@ -23,6 +23,7 @@ create table email_tasks (
 create table open_results (
     id           text primary key not null,
     file_name    text not null,
+    trashed      text not null,
     emails       text not null,
     created_at   date text not null
 );
@@ -30,6 +31,7 @@ create table open_results (
 create table certified_results (
     id           text primary key not null,
     file_name    text not null,
+    trashed      text not null,
     emails       text not null,
     created_at   date text not null
 );

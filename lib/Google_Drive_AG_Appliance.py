@@ -603,11 +603,11 @@ if __name__ == "__main__":
                     Open_Results = DB_Cursor.fetchone()
                     DB_Cursor.execute(f"""SELECT * FROM certified_results WHERE id = '{resultid}';""")
                     Cert_Results = DB_Cursor.fetchone()
-                    Open_Results_Email_List = Open_Results[2].split(", ")
+                    Open_Results_Email_List = Open_Results[3].split(", ")
                     Cert_Results_Email_List = []
 
                     if Cert_Results:
-                        Cert_Results_Email_List = Cert_Results[2].split(", ")
+                        Cert_Results_Email_List = Cert_Results[3].split(", ")
 
                     if request.form["email"] in Open_Results_Email_List:
                         Open_Results_Email_List.remove(request.form["email"])
@@ -634,14 +634,14 @@ if __name__ == "__main__":
                             if Open_Results_Email_List == []:
                                 Emails = ", ".join(Cert_Results_Email_List)
                                 DB_Cursor.execute(f"""DELETE from open_results where id = "{resultid}";""")
-                                DB_Cursor.execute(f"""INSERT INTO certified_results (id, file_name, emails, created_at) values ('{Open_Results[0]}', '{Open_Results[1]}', '{Emails}', '{Open_Results[3]}');""")
+                                DB_Cursor.execute(f"""INSERT INTO certified_results (id, file_name, trashed, emails, created_at) values ('{Open_Results[0]}', '{Open_Results[1]}', '{Open_Results[2]}', '{Emails}', '{Open_Results[4]}');""")
                                 DB_Conn.commit()
 
                             else:
                                 Open_Emails = ", ".join(Open_Results_Email_List)
                                 Cert_Emails = ", ".join(Cert_Results_Email_List)
                                 DB_Cursor.execute(f"""UPDATE open_results SET emails = "{Open_Emails}" WHERE id = "{resultid}";""")
-                                DB_Cursor.execute(f"""INSERT INTO certified_results (id, file_name, emails, created_at) values ('{Open_Results[0]}', '{Open_Results[1]}', '{Cert_Emails}', '{Open_Results[3]}');""")
+                                DB_Cursor.execute(f"""INSERT INTO certified_results (id, file_name, trashed, emails, created_at) values ('{Open_Results[0]}', '{Open_Results[1]}', '{Open_Results[2]}', '{Cert_Emails}', '{Open_Results[4]}');""")
                                 DB_Conn.commit()
 
                     else:

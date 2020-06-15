@@ -4,4 +4,3 @@ google-auth-oauthlib
 colorama
 flask
 flask_compress
-python-dateutil

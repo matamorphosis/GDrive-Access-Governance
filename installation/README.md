@@ -21,6 +21,6 @@ user@linux:~/Path/to/GDrive-Access-Governance/$ pip3 install -r requirements.txt
 ```
 4. You will need a credentials.json file. To obtain this file, log into your Google Account and navigate to https://developers.google.com/drive/api/v3/quickstart/python, then click the blue button called "Enable the Drive API". A pop-up box should come up and there will be another blue button called "DOWNLOAD CLIENT CONFIGURATION". Click this button to download your credentials.json file and then copy it to the following directories in your GDrive-Access-Governance directory.  
 ```
-~/Path/to/GDrive-Access-Governance/lib
-~/Path/to/GDrive-Access-Governance/installation
+~/Path/to/GDrive-Access-Governance/lib/config
+~/Path/to/GDrive-Access-Governance/scripts
 ```

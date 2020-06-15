@@ -25,7 +25,7 @@ def Database_Output(DB_Filename, Output_Data, **kwargs):
 
         if not Open_Results and not Cert_Results:
             Emails = ", ".join(Output_Data["Emails"])
-            DB_Conn.executescript(f"""INSERT INTO open_results (id, file_name, emails, created_at) values ('{Output_Data["File_ID"]}', '{Output_Data["File_Name"]}', '{Emails}', '{Created}');""")
+            DB_Conn.executescript(f"""INSERT INTO open_results (id, file_name, trashed, emails, created_at) values ('{Output_Data["File_ID"]}', '{Output_Data["File_Name"]}', '{Output_Data["Trashed"]}', '{Emails}', '{Created}');""")
 
         elif not Open_Results and Cert_Results:
             Emails_to_Output = []
@@ -38,7 +38,7 @@ def Database_Output(DB_Filename, Output_Data, **kwargs):
 
             if Emails_to_Output != []:
                 Emails_to_Output = ", ".join(Emails_to_Output)
-                DB_Conn.executescript(f"""INSERT INTO open_results (id, file_name, emails, created_at) values ('{Output_Data["File_ID"]}', '{Output_Data["File_Name"]}', '{Emails_to_Output}', '{Created}');""")
+                DB_Conn.executescript(f"""INSERT INTO open_results (id, file_name, trashed, emails, created_at) values ('{Output_Data["File_ID"]}', '{Output_Data["File_Name"]}', '{Output_Data["Trashed"]}', '{Emails_to_Output}', '{Created}');""")
 
 
         elif Open_Results and not Cert_Results:
@@ -111,11 +111,11 @@ def Database_Output(DB_Filename, Output_Data, **kwargs):
                 DB_Conn.executescript(f"""DELETE from open_results where id = "{File_ID}";""")
 
             Emails_to_Output = ", ".join(Output_Data["Emails"])
-            DB_Conn.executescript(f"""INSERT INTO certified_results (id, file_name, emails, created_at) values ('{Output_Data["File_ID"]}', '{Output_Data["File_Name"]}', '{Emails_to_Output}', '{Created}');""")
+            DB_Conn.executescript(f"""INSERT INTO certified_results (id, file_name, trashed, emails, created_at) values ('{Output_Data["File_ID"]}', '{Output_Data["File_Name"]}', '{Output_Data["Trashed"]}', '{Emails_to_Output}', '{Created}');""")
 
         elif not Open_Results and not Cert_Results:
             Emails_to_Output = ", ".join(Output_Data["Emails"])
-            DB_Conn.executescript(f"""INSERT INTO certified_results (id, file_name, emails, created_at) values ('{Output_Data["File_ID"]}', '{Output_Data["File_Name"]}', '{Emails_to_Output}', '{Created}');""")
+            DB_Conn.executescript(f"""INSERT INTO certified_results (id, file_name, trashed, emails, created_at) values ('{Output_Data["File_ID"]}', '{Output_Data["File_Name"]}', '{Output_Data["Trashed"]}', '{Emails_to_Output}', '{Created}');""")
 
         else:
             DB_Conn.close()
@@ -142,7 +142,10 @@ class Main:
                     Credentials.refresh(Request())
 
                 else:
-                    flow = InstalledAppFlow.from_client_secrets_file('credentials.json', Scope)
+                    File_Dir = os.path.dirname(os.path.realpath('__file__'))
+                    Configuration_File = os.path.join(File_Dir, 'config/credentials.json')
+                    print(Configuration_File )
+                    flow = InstalledAppFlow.from_client_secrets_file(Configuration_File, Scope)
                     Credentials = flow.run_local_server(port=0)
 
                 with open('token.pickle', 'wb') as token:
@@ -170,7 +173,7 @@ class Main:
                         
                         if not Match:
                             self.Current_File_ID = Item['id']
-                            self.Current_Prints = {"File_ID": str(Item['id']), "File_Name": str(Item['name']), "Emails": [str(Permission_Detail['emailAddress'])]}
+                            self.Current_Prints = {"File_ID": str(Item['id']), "File_Name": str(Item['name']), "Trashed": Item["trashed"], "Emails": [str(Permission_Detail['emailAddress'])]}
 
                         else:
                             self.Current_Prints["Emails"].append(str(Permission_Detail['emailAddress']))
@@ -182,45 +185,32 @@ class Main:
                     except Exception as e:
                         sys.exit(f'[-] {str(e)}.')
 
-                if "permitted_domains" in self.kwargs:
+                for Permission_Detail in Permission_Details:
 
-                    for Permission_Detail in Permission_Details:
+                    if 'emailAddress' in Permission_Detail:
 
-                        if 'emailAddress' in Permission_Detail:
+                        if "permitted_domains" in self.kwargs:
 
                             if Permission_Detail['emailAddress'] and any(substring not in Permission_Detail['emailAddress'] for substring in self.kwargs['permitted_domains']):
                                 Outputter(self, Permission_Detail, Item, self.Current_File_ID == Item['id'])
-                                
 
-                elif "non_permitted_domains" in self.kwargs:
-
-                    for Permission_Detail in Permission_Details:
-
-                        if 'emailAddress' in Permission_Detail:
+                        elif "non_permitted_domains" in self.kwargs:
 
                             if Permission_Detail['emailAddress'] and any(substring in Permission_Detail['emailAddress'] for substring in self.kwargs['non_permitted_domains']):
                                 Outputter(self, Permission_Detail, Item, self.Current_File_ID == Item['id'])
 
-                elif "permitted_emails" in self.kwargs:
-
-                    for Permission_Detail in Permission_Details:
-
-                        if 'emailAddress' in Permission_Detail:
+                        elif "permitted_emails" in self.kwargs:
 
                             if Permission_Detail['emailAddress'] and Permission_Detail['emailAddress'] not in self.kwargs['permitted_emails']:
                                 Outputter(self, Permission_Detail, Item, self.Current_File_ID == Item['id'])
 
-                elif "non_permitted_emails" in self.kwargs:
-
-                    for Permission_Detail in Permission_Details:
-
-                        if 'emailAddress' in Permission_Detail:
+                        elif "non_permitted_emails" in self.kwargs:
 
                             if Permission_Detail['emailAddress'] and Permission_Detail['emailAddress'] in self.kwargs['non_permitted_emails']:
                                 Outputter(self, Permission_Detail, Item, self.Current_File_ID == Item['id'])
 
-                else:
-                    sys.exit('[-] No valid keyword arguments supplied.')
+                        else:
+                            sys.exit('[-] No valid keyword arguments supplied.')
 
                 if self.Current_Prints != {}:
 
@@ -257,7 +247,7 @@ class Main:
 
                             if Parent['name'] not in Exclude_Directories:
                                 print(f"[+] Searching under parent {Parent['name']}")
-                                Current_Response = self.Service.files().list(q=f"'{Parent['id']}' in parents", pageSize=Page_Size, fields="nextPageToken, files(id, name, mimeType)",).execute()
+                                Current_Response = self.Service.files().list(q=f"'{Parent['id']}' in parents", pageSize=Page_Size, fields="nextPageToken, files(id, name, mimeType, trashed)",).execute()
                                 Cur_Page_Start = 0
                                 Cur_Page = 1
 
@@ -274,7 +264,7 @@ class Main:
                                         with Pool(processes=2) as p:
                                             p.map(self.Iteration, Current_Result_Items)
 
-                                    Current_Response = self.Service.files().list(q=f"'{Parent['id']}' in parents", pageSize=Page_Size, pageToken=Current_Response['nextPageToken'], fields="nextPageToken, files(id, name, mimeType)",).execute()
+                                    Current_Response = self.Service.files().list(q=f"'{Parent['id']}' in parents", pageSize=Page_Size, pageToken=Current_Response['nextPageToken'], fields="nextPageToken, files(id, name, mimeType, trashed)",).execute()
                                     Cur_Page += 1
                                     Cur_Page_Start += Page_Size
 
@@ -327,7 +317,7 @@ class Main:
 
                             if Parent['name'] in Include_Directories:
                                 print(f"[+] Searching under parent {Parent['name']}")
-                                Current_Response = self.Service.files().list(q=f"'{Parent['id']}' in parents", pageSize=Page_Size, fields="nextPageToken, files(id, name, mimeType)",).execute()
+                                Current_Response = self.Service.files().list(q=f"'{Parent['id']}' in parents", pageSize=Page_Size, fields="nextPageToken, files(id, name, mimeType, trashed)",).execute()
                                 Cur_Page_Start = 0
                                 Cur_Page = 1
 
@@ -344,7 +334,7 @@ class Main:
                                         with Pool(processes=2) as p:
                                             p.map(self.Iteration, Current_Result_Items)
 
-                                    Current_Response = self.Service.files().list(q=f"'{Parent['id']}' in parents", pageSize=Page_Size, pageToken=Current_Response['nextPageToken'], fields="nextPageToken, files(id, name, mimeType)",).execute()
+                                    Current_Response = self.Service.files().list(q=f"'{Parent['id']}' in parents", pageSize=Page_Size, pageToken=Current_Response['nextPageToken'], fields="nextPageToken, files(id, name, mimeType, trashed)",).execute()
                                     Cur_Page += 1
                                     Cur_Page_Start += Page_Size
 
@@ -387,7 +377,7 @@ class Main:
                         Included_Parent_Search(self, Result_Items)
 
             else:
-                Response = self.Service.files().list(pageSize=Page_Size, fields="nextPageToken, files(id, name, mimeType)",).execute()
+                Response = self.Service.files().list(pageSize=Page_Size, fields="nextPageToken, files(id, name, mimeType, trashed)",).execute()
                 Page_Start = 0
                 Page = 1
                     
