@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="SGoogle Drive Access Governance Home.">
+      <link rel="icon" href="{{ url_for('static', filename='icons/main.ico') }}" />
+      <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/main.ico') }}" />
+      <link rel="icon" href="static/icons/main.ico" />
+      <link rel="apple-touch-icon" href="static/icons/main.ico" />
+      <script type="text/javascript" src='static/js/Chart.min.js'></script>
+      <title>Google Drive Access Governance Home</title>
+   </head>
+   <body>
+      {% extends "template.html" %}
+      {% block content %}
+      <main>
+         <div class="dashboard_field-container">
+            <section>
+            <div class="dashboard_large_outer_div">
+                <div class="dashboard_large_div">
+                    {% if Task_Values %}
+                    <div class="dashboard_small_outer_div">
+                        <div class="dashboard_small_div"><p class="dashboard_p">Overview of Current Tasks</p><canvas id="chart1"></canvas>
+                        <script>
+                          var pieData1 = [
+                            {% for item, label, colors in Task_Values %}
+                              {
+                                value: {{item}},
+                                label: "{{label}}",
+                                color : "{{colors}}"
+                              },
+                            {% endfor %}
+                          ];
+                          // get bar chart canvas
+                          var mychart1 = document.getElementById("chart1").getContext("2d");
+                          steps = 10
+                          max = {{ max }}
+                          // draw pie chart
+                          new Chart(document.getElementById("chart1").getContext("2d")).Pie(pieData1);
+                        </script></div>
+                    </div>
+                    {% endif %}
+                    {% if Result_Values %}
+                    <div class="dashboard_small_outer_right_div">
+                        <div class="dashboard_small_div"><p class="dashboard_p">Overview of Current Results</p><canvas id="chart2"></canvas>
+                        <script>
+                          var pieData3 = [
+                            {% for item, label, colors in Result_Values %}
+                              {
+                                value: {{item}},
+                                label: "{{label}}",
+                                color : "{{colors}}"
+                              },
+                            {% endfor %}
+                          ];
+                          // get bar chart canvas
+                          var mychart3 = document.getElementById("chart2").getContext("2d");
+                          steps = 10
+                          max = {{ max }}
+                          // draw pie chart
+                          new Chart(document.getElementById("chart2").getContext("2d")).Pie(pieData3);
+                        </script></div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            </section>
+            <footer><p class="aboutinfo"><a href="https://github.com/matamorphosis/GDrive-Access-Governance" id="version">Google Drive Access Governance Appliance v1.0</a></p></footer>
+        </div>
+      </main>
+      {% endblock %}
+   </body>
+</html>
