@@ -45,7 +45,7 @@
 	                            </form>
 								<form class="task_buttons" action="/results/revoke/{{Result_ID}}" method=post autocomplete="off">
 									<input type="hidden" name="email" value="{{result}}">
-	                                <input onclick="return confirm('Are you sure you want to revoke the access {{result}} has to the file: {{Result_ID}}?');"class="button-delete" type=submit value="Revoke Access">
+	                                <input onclick="return confirm('Are you sure you want to revoke the access {{result}} has to the file: {{Result_ID}}?');"class="button-red" type=submit value="Revoke Access">
 	                            </form>
                         	</td>
 						</tr>
@@ -58,7 +58,7 @@
 						<tr>
 							<th>File ID</th>
 							<th>File Name</th>
-							<th>File in Bin</th>
+							<th style="min-width: 80px;">File in Bin</th>
 							<th>Accessible By</th>
 							<th>Created At</th>
 							<th>Functions</th>

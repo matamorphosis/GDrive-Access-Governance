@@ -4,7 +4,7 @@
 }
 
 body {
-    background-color: #fff;
+    background-color: #000;
 }
 
 header {
@@ -20,8 +20,8 @@ footer {
 }
 
 textarea:focus {
-    border: 1px solid rgba(220, 20, 60, 1);
-    box-shadow: 0 0 5px rgba(255, 0, 0, 1);
+    border: 1px solid grey;
+    box-shadow: 0 0 5px grey;
 }
 
 input {
@@ -31,7 +31,6 @@ input {
     -o-transition: all 0.30s ease-in-out;
     outline: none;
     padding: 5px;
-    border: 1px solid #303030;
     border-radius: 2px;
 }
 
@@ -42,13 +41,14 @@ textarea {
     -o-transition: all 0.30s ease-in-out;
     outline: none;
     padding: 5px;
-    border: 1px solid #303030;
     width: 100%;
     border-radius: 2px;
+    background-color: #000;
+    border: 1px solid #303030;
+    color: #fff;
 }
 
 select {
-    border: 1px solid #303030;
     border-radius: 2px;
     -webkit-transition: all 0.30s ease-in-out;
     -moz-transition: all 0.30s ease-in-out;
@@ -56,15 +56,13 @@ select {
     -o-transition: all 0.30s ease-in-out;
     outline: none;
     padding: 4px;
-    background-color: #fff;
+    background-color: #303030;
+    color: #fff;
+    border: 0px solid transparent;
 }
 
 select:hover {
-    border: 1px solid grey;
-}
-
-select:focus {
-    border: 1px solid grey;
+    background-color: grey;
 }
 
 nav {
@@ -366,6 +364,7 @@ table.dataTable th.dt-center,table.dataTable td.dt-center,table.dataTable td.dat
 {
     text-align:center;
     padding: 8px 0px 8px 0px;
+    color: #fff;
 }
 
 table.dataTable th.dt-right,table.dataTable td.dt-right
@@ -444,7 +443,7 @@ table.dataTable,table.dataTable th,table.dataTable td
 
 .aboutinfo a {
     text-decoration: none;
-    color: #303030;
+    color: #fff;
     font-family: arial;
     font-size: 12pt;
 }
@@ -465,7 +464,6 @@ table.dataTable,table.dataTable th,table.dataTable td
     outline: none;
     border: 0;
     background-color: #303030;
-    border: 1px solid #303030;
 }
 
 .button-red {
@@ -480,7 +478,6 @@ table.dataTable,table.dataTable th,table.dataTable td
     outline: none;
     border: 0;
     background-color: #303030;
-    border: 1px solid #303030;
 }
 
 .button-run {
@@ -494,8 +491,7 @@ table.dataTable,table.dataTable th,table.dataTable td
     -moz-box-shadow: none;
     outline: none;
     border: 0;
-    background-color: #303030;
-    border: 1px solid #303030;
+    background-color: green;
 }
 
 .button-disabled {
@@ -513,17 +509,14 @@ table.dataTable,table.dataTable th,table.dataTable td
 }
 
 .button-run:hover {
-    border: 1px solid #006400;
     background-color: #006400;
 }
 
 .button-red:hover {
-    border: 1px solid #DC143C;
     background-color: #DC143C;
 }
 
 .button:hover {
-    border: 1px solid grey;
     background-color: grey;
 }
 
@@ -566,7 +559,6 @@ table.dataTable,table.dataTable th,table.dataTable td
 
 .dashboard_small_outer_right_div {
     display: inline-block;
-    border: 1px solid #303030;
     width: 45%;
 }
 
@@ -614,7 +606,7 @@ table.dataTable,table.dataTable th,table.dataTable td
     float: left;
     padding-top: 6px;
     font-size: 14px;
-    color: #303030;
+    color: #fff;
 }
 
 .dataTables_wrapper .dataTables_paginate
@@ -638,7 +630,6 @@ table.dataTable,table.dataTable th,table.dataTable td
     text-decoration: none !important;
     cursor: pointer;
     *cursor: hand;
-    border: 1px solid #303030;
     border-radius: 2px;
     -webkit-transition: all 0.30s ease-in-out;
     -moz-transition: all 0.30s ease-in-out;
@@ -648,7 +639,6 @@ table.dataTable,table.dataTable th,table.dataTable td
 
 .dataTables_wrapper .dataTables_paginate .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover
 {
-    border: 1px solid grey;
     background-color: grey;
 }
 
@@ -657,13 +647,11 @@ table.dataTable,table.dataTable th,table.dataTable td
     cursor: default;
     color: #ffffff !important;
     font-size: 10pt;
-    border: 1px solid transparent;
     box-shadow: none;
 }
 
 .dataTables_wrapper .dataTables_paginate .paginate_button:hover
 {
-    border: 1px solid grey;
     background-color: grey;
 }
 
@@ -758,20 +746,21 @@ table.dataTable,table.dataTable th,table.dataTable td
 }
 
 .field_textarea {
+    background-color: #000;
     padding: 5px;
-    border: 1px solid #303030;
     box-shadow: none;
     -webkit-box-shadow: none;
     -moz-box-shadow: none;
     outline: none;
     width: 100%;
     border-radius: 2px;
-    color: #303030;
+    color: #fff;
+    border: 1px solid #303030;
 }
 
 .field_textarea:focus {
-    box-shadow: 0 0 5px rgba(255, 0, 0, 1);
-    border: 1px solid rgba(220, 20, 60, 1);
+    border: 1px solid grey;
+    box-shadow: 0 0 5px grey;
 }
 
 .form {
@@ -792,6 +781,7 @@ table.dataTable,table.dataTable th,table.dataTable td
     background-repeat: no-repeat;
     background-size: 29px;
     background-position: left;
+    border: 0px solid transparent;
     padding-left: 30px !important;
     text-align: center;
     -webkit-transition: all 0.30s ease-in-out;
@@ -801,28 +791,70 @@ table.dataTable,table.dataTable th,table.dataTable td
 }
 
 .js_search:focus {
-    background-image: url('../images/search_blk.png');
+    background-image: url('../images/search_white.png');
+    background-color: #303030;
 }
 
 .js_search:hover {
-    background-image: url('../images/search_blk.png');
+    background-image: url('../images/search_white.png');
+    background-color: #303030;
+}
+
+input[type="search" i] {
+    padding: 6px;
+    border: 1px solid #303030;
+}
+
+input[type="search"] {
+    border-radius: 2px;
+    background-color: #303030;
+    color: #fff;
+}
+
+input[type="search"]:hover {
+    background-color: grey;
+    border: 1px solid grey;
+}
+
+input[type="search"]:focus {
+    background-color: grey;
+    border: 1px solid grey;
+}
+
+input[type="search"]::placeholder {
+    -webkit-transition: all 0.30s ease-in-out;
+    -moz-transition: all 0.30s ease-in-out;
+    -ms-transition: all 0.30s ease-in-out;
+    -o-transition: all 0.30s ease-in-out;
+}
+
+input[type="search"]:focus::placeholder {
+    color: #fff;
+    opacity: 1;
+}
+
+input[type="search"]:hover::placeholder {
+    color: #fff;
+    opacity: 1;
 }
 
 .label_dd {
     font-size: 10pt;
     padding: 0px;
     text-align: left;
+    color: #fff;
 }
 
 .loaderabout {
-    color: #303030;
+    color: #fff;
     font-family: arial;
     font-size: 16pt;
     text-align: center;
     height: 90px;
     line-height: 90px;
 }
-    #logintitle {
+
+#logintitle {
     color: #303030;
     font-family: arial;
     font-size: 14pt;
@@ -863,16 +895,16 @@ table.dataTable,table.dataTable th,table.dataTable td
 
 .form_message {
     text-align: center;
-    color: #303030;
+    color: #fff;
     padding: 0px;
     width: 99%;
     font-size: 12pt;
 }
 
 .regulartab {
-    padding-left: 10px;
+    padding: 5px 0px 5px 10px;
     overflow: hidden;
-    color: #303030;
+    color: #fff;
 }
 
 table.dataTable tbody td .regulartab {
@@ -901,6 +933,7 @@ table.dataTable tbody td .regulartab {
 
 #auto_label label {
     font-size: 10pt;
+    color: #fff;
 }
 
 #bottom_form {

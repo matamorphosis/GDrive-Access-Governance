@@ -221,8 +221,8 @@ if __name__ == "__main__":
                 Total_Cert_Emails = []
                 Result_Labels = ["Open Results", "Certified Results"]
                 Task_Labels = ["Email Tasks", "Domain Tasks"]
-                Result_Colors = ["red", "green"]
-                Task_Colors = ["blue", "purple"]
+                Result_Colors = ["#ff0000", "#008000"]
+                Task_Colors = ["#0000ff", "#800080"]
 
                 if Open_Results:
 
@@ -236,23 +236,21 @@ if __name__ == "__main__":
                         Current_Emails = Cert_Result[2].split(", ")
                         Total_Cert_Emails += Current_Emails
 
-                print(Email_Tasks)
-
                 if not Total_Cert_Emails and not Total_Cert_Emails and Email_Tasks[0] == 0 and Domain_Tasks[0] == 0:
                     return render_template('index.html', Result_Values=None, Task_Values=None)
 
                 elif not Total_Cert_Emails and not Total_Cert_Emails:
                     Task_Values = [Email_Tasks[0], Domain_Tasks[0]]
-                    return render_template('index.html', Result_Values=None, Task_Values=zip(Task_Values, Task_Labels, Task_Colors))
+                    return render_template('index.html', Result_Values=None, Task_Values=[Task_Values, Task_Labels, Task_Colors])
 
                 elif Email_Tasks[0] == 0 and Domain_Tasks[0] == 0:
                     Result_Values = [len(Total_Open_Emails), len(Total_Cert_Emails)]
-                    return render_template('index.html', Result_Values=zip(Result_Values, Result_Labels, Result_Colors), Task_Values=None)
+                    return render_template('index.html', Result_Values=[Result_Values, Result_Labels, Result_Colors], Task_Values=None)
 
                 else:
                     Result_Values = [len(Total_Open_Emails), len(Total_Cert_Emails)]
                     Task_Values = [Email_Tasks[0], Domain_Tasks[0]]
-                    return render_template('index.html', Result_Values=zip(Result_Values, Result_Labels, Result_Colors), Task_Values=zip(Task_Values, Task_Labels, Task_Colors))
+                    return render_template('index.html', Result_Values=[Result_Values, Result_Labels, Result_Colors], Task_Values=[Task_Values, Task_Labels, Task_Colors])
 
             except Exception as e:
                 app.logger.error(e)
