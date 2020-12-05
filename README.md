@@ -3,12 +3,11 @@
 
 # Google Drive Access Governance
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)  
-A simple snitch tool which alerts any Google Drive user who has access to their files who may pose a security risk.  
-**Web Application Appliance Now Available**
-- GUI to interact with the script
-- Revoke functionality for the web application.
-- New Auto-Revoke and Auto-Certify abilities for tasks.
-- Now highlights when a file is in the bin or not.
+A simple snitch tool which alerts any Google Drive user who has access to their files who may pose a security risk.
+**Version 1.1**  
+- Improved GUI
+- Converted to Dark Theme
+- Clickable Graphs
 
 ## Use Cases
 For small businesses using Google Suite, Google provides built in access controls for all users within that company's Google Suite; however, what if someone in the business shares files within Google Drive with someone outside the organisation? This tool provides a simple and effective way of returning any files that can be accessed by potentially untrusted persons.
