@@ -40,7 +40,6 @@ def Database_Output(DB_Filename, Output_Data, **kwargs):
                 Emails_to_Output = ", ".join(Emails_to_Output)
                 DB_Conn.executescript(f"""INSERT INTO open_results (id, file_name, trashed, emails, created_at) values ('{Output_Data["File_ID"]}', '{Output_Data["File_Name"]}', '{Output_Data["Trashed"]}', '{Emails_to_Output}', '{Created}');""")
 
-
         elif Open_Results and not Cert_Results:
             Original_Emails = Open_Results[0].split(", ")
             Open_Emails = Original_Emails

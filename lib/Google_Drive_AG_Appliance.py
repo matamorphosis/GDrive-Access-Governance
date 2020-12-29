@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-import os, sys, colorama, logging, datetime, json, sqlite3, threading, time, dateutil.parser
+import os, pathlib, sys, colorama, logging, datetime, json, sqlite3, threading, time, dateutil.parser
 from flask import Flask, render_template, flash, request, redirect, url_for, session, send_from_directory, jsonify
 from flask_compress import Compress
 from signal import signal, SIGINT
@@ -13,6 +13,19 @@ if __name__ == "__main__":
 
         def Date():
             return str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+
+        try:
+            GDAG_Working_Directory = pathlib.Path(__file__).parent.absolute()
+
+            if str(GDAG_Working_Directory) != str(os.getcwd()):
+                print(f"[i] Scrummage has been called from outside the Scrummage directory, changing the working directory to {str(GDAG_Working_Directory)}.")
+                os.chdir(GDAG_Working_Directory)
+
+                if str(GDAG_Working_Directory) != str(os.getcwd()):
+                    sys.exit(f'{Date()} Error setting the working directory.')
+
+        except:
+            sys.exit(f'{Date()} Error setting the working directory.')
 
         try:
             File_Path = os.path.dirname(os.path.realpath('__file__'))
