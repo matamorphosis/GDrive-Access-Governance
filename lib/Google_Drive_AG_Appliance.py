@@ -18,7 +18,7 @@ if __name__ == "__main__":
             GDAG_Working_Directory = pathlib.Path(__file__).parent.absolute()
 
             if str(GDAG_Working_Directory) != str(os.getcwd()):
-                print(f"[i] Scrummage has been called from outside the Scrummage directory, changing the working directory to {str(GDAG_Working_Directory)}.")
+                print(f"[i] Google Drive AG Appliance has been called from outside of its directory, changing the working directory to {str(GDAG_Working_Directory)}.")
                 os.chdir(GDAG_Working_Directory)
 
                 if str(GDAG_Working_Directory) != str(os.getcwd()):
