@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-import os, pathlib, sys, colorama, logging, datetime, json, sqlite3, threading, time, dateutil.parser
+import os, re, pathlib, sys, colorama, logging, datetime, json, sqlite3, threading, time, dateutil.parser
 from flask import Flask, render_template, flash, request, redirect, url_for, session, send_from_directory, jsonify
 from flask_compress import Compress
 from signal import signal, SIGINT
@@ -558,40 +558,40 @@ if __name__ == "__main__":
                 if 'email' in request.form:
 
                     if not any(char in resultid for char in ["(", ")", ";", "--", "++", "\"", "\'"]):
-                        DB_Conn = sqlite3.connect(DB_Filename)
-                        DB_Cursor = DB_Conn.cursor()
-                        DB_Cursor.execute(f"""SELECT emails FROM certified_results WHERE id = '{resultid}';""")
-                        Cert_Results = DB_Cursor.fetchone()
 
-                        if not Cert_Results:
-                            DB_Cursor.execute(f"""SELECT emails FROM open_results WHERE id = '{resultid}';""")
-                            DB_Results = DB_Cursor.fetchone()
-                            Email_List = DB_Results[0].split(", ")
+                        def nested_result_revocation_function(Result_ID, Request_Form):
+                            DB_Conn = sqlite3.connect(DB_Filename)
+                            DB_Cursor = DB_Conn.cursor()
+                            DB_Cursor.execute(f"""SELECT emails FROM certified_results WHERE id = '{Result_ID}';""")
+                            Cert_Results = DB_Cursor.fetchone()
 
-                            if request.form["email"] in Email_List:
-                                import GDAG_Lib
-                                Google_Drive = GDAG_Lib.Main(DB_Filename)
-                                Thread_1 = threading.Thread(target=Google_Drive.Revoke_Access, args=(resultid, request.form["email"],))
-                                Thread_1.start()
-                                Email_List.remove(request.form["email"])
+                            if not Cert_Results:
+                                DB_Cursor.execute(f"""SELECT emails FROM open_results WHERE id = '{Result_ID}';""")
+                                DB_Results = DB_Cursor.fetchone()
+                                Email_List = DB_Results[0].split(", ")
 
-                                if Email_List == []:
-                                    DB_Cursor.execute(f"""DELETE from open_results where id = "{resultid}";""")
-                                    DB_Conn.commit()
+                                if Request_Form["email"] in Email_List:
+                                    import GDAG_Lib
+                                    Google_Drive = GDAG_Lib.Main(DB_Filename)
+                                    Revoked = Google_Drive.Revoke_Access(Result_ID, Request_Form["email"])
 
-                                else:
-                                    Emails = ", ".join(Email_List)
-                                    DB_Cursor.execute(f"""UPDATE open_results SET emails = "{Emails}" WHERE id = "{resultid}";""")
-                                    DB_Conn.commit()
+                                    if Revoked:
+                                        Email_List.remove(Request_Form["email"])
 
-                            else:
-                                return redirect(url_for('results'))
+                                        if Email_List == []:
+                                            DB_Cursor.execute(f"""DELETE from open_results where id = "{Result_ID}";""")
+                                            DB_Conn.commit()
 
-                            DB_Conn.close()
-                            return redirect(url_for('results'))
+                                        else:
+                                            Emails = ", ".join(Email_List)
+                                            DB_Cursor.execute(f"""UPDATE open_results SET emails = "{Emails}" WHERE id = "{Result_ID}";""")
+                                            DB_Conn.commit()
 
-                        else:
-                            return redirect(url_for('results'))
+                                DB_Conn.close()
+
+                        Thread_1 = threading.Thread(target=nested_result_revocation_function, args=(resultid, request.form))
+                        Thread_1.start()
+                        return redirect(url_for('results'))
 
                     else:
                         return redirect(url_for('results'))
@@ -663,6 +663,75 @@ if __name__ == "__main__":
 
                         DB_Conn.close()
                         return redirect(url_for('results'))
+
+                    else:
+                        return redirect(url_for('results'))
+
+                else:
+                    return redirect(url_for('results'))
+
+            except Exception as e:
+                app.logger.error(e)
+                return redirect(url_for('results'))
+
+        @app.route('/results/create/<resultid>', methods=['POST'])
+        def result_create(resultid):
+
+            try:
+
+                if all(item in request.form for item in ['email', 'role', 'grantee']):
+
+                    if re.search(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)", request.form['email']) and any(role == request.form['role'] for role in ['owner', 'organizer', 'fileOrganizer', 'reader', 'writer', 'commenter']) and any(grantee == request.form['grantee'] for grantee in ['user', 'group', 'domain', 'anyone']):
+
+                        if not any(char in resultid for char in ["(", ")", ";", "--", "++", "\"", "\'"]):
+
+                            def nested_result_create_function(Result_ID, Request_Form):
+
+                                if Request_Form['role'] == 'owner':
+                                    Transfer_Ownership = True
+
+                                else:
+                                    Transfer_Ownership = False
+
+                                DB_Conn = sqlite3.connect(DB_Filename)
+                                DB_Cursor = DB_Conn.cursor()
+                                DB_Cursor.execute(f"""SELECT * FROM open_results WHERE id = '{Result_ID}';""")
+                                Open_Results = DB_Cursor.fetchone()
+                                DB_Cursor.execute(f"""SELECT * FROM certified_results WHERE id = '{Result_ID}';""")
+                                Cert_Results = DB_Cursor.fetchone()
+                                Open_Results_Email_List = Open_Results[3].split(", ")
+                                Cert_Results_Email_List = []
+
+                                if Cert_Results:
+                                    Cert_Results_Email_List = Cert_Results[3].split(", ")
+
+                                if Request_Form["email"] not in Open_Results_Email_List and Request_Form["email"] not in Cert_Results_Email_List:
+                                    import GDAG_Lib
+                                    Google_Drive = GDAG_Lib.Main(DB_Filename)
+                                    Provisioned = Google_Drive.Provision_Access(Result_ID, Transfer_Ownership, {"role": Request_Form['role'], "type": Request_Form['grantee'], "emailAddress": Request_Form["email"]})
+
+                                    if Provisioned:
+
+                                        if Cert_Results:
+                                            Cert_Results_Email_List.append(Request_Form["email"])
+                                            Emails = ", ".join(Cert_Results_Email_List)
+                                            DB_Cursor.execute(f"""UPDATE certified_results SET emails = "{Emails}" WHERE id = "{Result_ID}";""")
+                                            DB_Conn.commit()
+
+                                        else:
+                                            Cert_Results_Email_List = [Request_Form["email"]]
+                                            Emails = ", ".join(Cert_Results_Email_List)
+                                            DB_Cursor.execute(f"""INSERT INTO certified_results (id, file_name, trashed, emails, created_at) values ('{Open_Results[0]}', '{Open_Results[1]}', '{Open_Results[2]}', '{Emails}', '{Open_Results[4]}');""")
+                                            DB_Conn.commit()
+
+                                DB_Conn.close()
+
+                            Thread_1 = threading.Thread(target=nested_result_create_function, args=(resultid, request.form))
+                            Thread_1.start()
+                            return redirect(url_for('results'))
+
+                        else:
+                            return redirect(url_for('results'))
 
                     else:
                         return redirect(url_for('results'))

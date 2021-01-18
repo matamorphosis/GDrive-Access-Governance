@@ -477,3 +477,12 @@ class Main:
 
         except Exception as e:
             print(f"[-] {str(e)}.")
+
+    def Provision_Access(self, File_ID, Transfer_Ownership, Permission):
+
+        try:
+            self.Service.permissions().create(fileId=File_ID, transferOwnership=Transfer_Ownership, body=Permission).execute()
+            return True
+
+        except Exception as e:
+            print(f"[-] {str(e)}.")

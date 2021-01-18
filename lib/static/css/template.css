@@ -466,6 +466,21 @@ table.dataTable,table.dataTable th,table.dataTable td
     background-color: #303030;
 }
 
+.button_inverse {
+    text-decoration: none;
+    color: #fff;
+    padding: 5px;
+    font-size: 10pt;
+    border-radius: 2px;
+    box-shadow: none;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    outline: none;
+    border: 0;
+    background-color: #000;
+}
+
+
 .button-red {
     text-decoration: none;
     color: #fff;
@@ -517,6 +532,10 @@ table.dataTable,table.dataTable th,table.dataTable td
 }
 
 .button:hover {
+    background-color: grey;
+}
+
+.button_inverse:hover {
     background-color: grey;
 }
 
@@ -745,6 +764,24 @@ table.dataTable,table.dataTable th,table.dataTable td
     width: 99%;
 }
 
+.email_field_textarea {
+    background-color: #000;
+    padding: 5px;
+    box-shadow: none;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    outline: none;
+    width: 98%;
+    border-radius: 2px;
+    color: #fff;
+    border: 1px solid #303030;
+}
+
+.email_field_textarea:focus {
+    border: 1px solid grey;
+    box-shadow: 0 0 5px grey;
+}
+
 .field_textarea {
     background-color: #000;
     padding: 5px;
@@ -852,6 +889,19 @@ input[type="search"]:hover::placeholder {
     text-align: center;
     height: 90px;
     line-height: 90px;
+}
+
+#add_user_form_div {
+    position: absolute;
+    top: 0%;
+    width: 30%;
+    right: 0%;
+    padding: 10px;
+    background-color: #303030;
+}
+
+.add_user_bool_form {
+    background-color: #000;
 }
 
 #logintitle {
@@ -979,9 +1029,9 @@ table.dataTable tbody td .regulartab {
 }
 
 #tsk_in_tbl_btns {
-    min-width: 150px;
-    max-width: 150px;
-    width: 150px;
+    min-width: 250px;
+    max-width: 250px;
+    width: 250px;
 }
 
 @keyframes gradient {
