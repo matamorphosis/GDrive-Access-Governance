@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="description" content="Google Drive Access Governance Results.">
+        <link rel="icon" href="{{ url_for('static', filename='icons/main.ico') }}" />
+        <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/main.ico') }}" />
+        <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.4.1.min.js') }}"></script>
+		<script type="text/javascript" src="{{ url_for('static', filename='js/datatables.min.js') }}"></script>
+		<script type="text/javascript" src="{{ url_for('static', filename='js/main.js') }}"></script>
+        <title>Google Drive Access Governance Results</title>
+    </head>
+    <body onload="myFunction()" style="margin:0;">
+    {% extends "template.html" %}
+    {% block content %}
+		<main>
+			<div id="loader">&nbsp;</div>
+			<noscript>
+				<p class="message">Please enable JavaScript to render this page. Otherwise it won't load.</p>
+			</noscript>
+			<p id="loader-message" class="loaderabout">Loading Certified Results...</p>
+			<div style="display: none;" id="fc" class="field-container">
+				{% if error %}
+					<p class="message"><strong>Error:</strong> {{error}}</p>
+				{% endif %}
+				<table style="width: 100%" id="paginate">
+					<thead>
+						<tr>
+							<th>File ID</th>
+							<th>File Name</th>
+							<th style="min-width: 80px;">File in Bin</th>
+							<th>Accessible By</th>
+							<th>Created At</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for result in Results %}
+						<tr>
+							{% for r in result %}
+							<td class="regulartab">{{r}}</td>
+							{% endfor %}
+						</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+			<script>
+			var myVar;
+
+			function myFunction() {
+			  myVar = setTimeout(showPage, 1000);
+			}
+
+			function showPage() {
+				document.getElementById("loader").style.display = "none";
+				document.getElementById("loader-message").style.display = "none";
+				document.getElementById("paginate").style.display = null;
+				document.getElementById("fc").style.display = null;
+				document.getElementsByTagName("INPUT")[0].placeholder='Search';
+				document.getElementsByTagName("INPUT")[0].className='js_search';
+			}
+			</script>
+		</main>
+    {% endblock %}
+    </body>
+</html>

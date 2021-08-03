@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="Google Drive Access Governance Results.">
+        <link rel="icon" href="{{ url_for('static', filename='icons/main.ico') }}" />
+        <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/main.ico') }}" />
+        <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.4.1.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/datatables.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/main.js') }}"></script>
+        <title>Google Drive Access Governance Results</title>
+    </head>
+    <body onload="myFunction()" style="margin:0;">
+    {% extends "template.html" %}
+    {% block content %}
+        <main>
+            <div id="loader">&nbsp;</div>
+            <noscript>
+                <p class="message">Please enable JavaScript to render this page. Otherwise it won't load.</p>
+            </noscript>
+            <p id="loader-message" class="loaderabout">Loading Open Results...</p>
+            <div style="display: none;" id="fc" class="field-container">
+                {% if error %}
+                    <p class="message"><strong>Error:</strong> {{error}}</p>
+                {% endif %}
+                {% if review_page %}
+                <table style="width: 100%" id="paginate">
+                    <thead>
+                        <tr>
+                            <th>File ID</th>
+                            <th>Email Address</th>
+                            <th>Access Functions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for result in Results %}
+                        <tr>
+                            <td class="regulartab">{{Result_ID}}</td>
+                            <td class="regulartab">{{result}}</td>
+                            <td style="width: 350px; min-width: 350px; max-width: 350px;" class="buttons_in_tasks_table" id="tsk_in_tbl_btns">
+                                <form class="task_buttons" action="/results/certify/{{Result_ID}}" method=post autocomplete="off">
+                                    <input type="hidden" name="email" value="{{result}}">
+                                    <input class="button-run" type=submit value="Certify">
+                                </form>
+                                <form class="task_buttons" action="/results/revoke/{{Result_ID}}" method=post autocomplete="off">
+                                    <input type="hidden" name="email" value="{{result}}">
+                                    <input onclick="return confirm('Are you sure you want to revoke the access {{result}} has to the file: {{Result_ID}}?');"class="button-red" type=submit value="Revoke">
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <table style="width: 100%" id="paginate">
+                    <thead>
+                        <tr>
+                            <th>File ID</th>
+                            <th>File Name</th>
+                            <th style="min-width: 80px;">File in Bin</th>
+                            <th>Accessible By</th>
+                            <th style="min-width: 150px; width: 150px; max-width: 150px;">Created At</th>
+                            <th>Functions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for result in Results %}
+                        <tr>
+                            {% for r in result %}
+                            <td class="regulartab">{{r}}</td>
+                            {% endfor %}
+                            <td class="buttons_in_tasks_table" id="tsk_in_tbl_btns">
+                                <form class="task_buttons" action="/results/review/{{result[0]}}" method=post autocomplete="off">
+                                    <input class="button" type=submit value="Review Access">
+                                </form>
+                                <button class="button" onclick="showForm('{{result[0]}}')">Share File</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <div id="add_user_form_div" style="display: none;">
+                    <form id="add_user_form" action="" method=post autocomplete="off">
+                        <dl>
+                            <dd>
+                                <button type="button" class="button_inverse" onclick="hideForm()" id="collapse">×</button>
+                            </dd>
+                            <dd>
+                                <input class="email_field_textarea" name=email placeholder="* Email Address Identity" value="">
+                            </dd>
+                            <dd class="label_dd">
+                                <label>Please select which kind of role you would like to assign to the provided identity.</label>
+                            </dd>
+                            <dd>
+                                <select class="add_user_bool_form" name="role" size="6">
+                                    <option value="owner">Owner Role</option>
+                                    <option value="organizer">Organiser Role</option>
+                                    <option value="fileOrganizer">File Organiser Role</option>
+                                    <option value="writer">Writer Role</option>
+                                    <option value="commenter">Commenter Role</option>
+                                    <option value="reader">Reader Role</option>
+                                </select>
+                            </dd>
+                            <dd class="label_dd">
+                                <label>Please select which type of grantee the provided identity is.</label>
+                            </dd>
+                            <dd>
+                                <select class="add_user_bool_form" name="grantee" size="4">
+                                    <option value="user">User</option>
+                                    <option value="group">Group</option>
+                                    <option value="domain">Domain</option>
+                                    <option value="anyone">Anyone</option>
+                                </select>
+                            </dd>
+                        </dl>
+                        <input style="display: inline-block;" class="button_inverse" id="sharesubmit" name="finishtask" type=submit value="">
+                    </form>
+                </div>
+                <script type="text/javascript">
+                    function showForm(result) {
+                        document.getElementById("add_user_form").action = "/results/create/" + result;
+                        document.getElementById("sharesubmit").value = "Share " + result;
+                        document.getElementById("add_user_form_div").style.display = null;
+                    }
+
+                    function hideForm() {
+                        document.getElementById("add_user_form").action = ""
+                        document.getElementById("sharesubmit").value = "";
+                        document.getElementById("add_user_form_div").style.display = "none";
+                    }
+                </script>
+                {% endif %}
+            </div>
+            <script type="text/javascript">
+            var myVar;
+
+            function myFunction() {
+              myVar = setTimeout(showPage, 1000);
+            }
+
+            function showPage() {
+                document.getElementById("loader").style.display = "none";
+                document.getElementById("loader-message").style.display = "none";
+                document.getElementById("paginate").style.display = null;
+                document.getElementById("fc").style.display = null;
+                document.getElementsByTagName("INPUT")[0].placeholder='Search';
+                document.getElementsByTagName("INPUT")[0].className='js_search';
+            }
+            </script>
+        </main>
+    {% endblock %}
+    </body>
+</html>

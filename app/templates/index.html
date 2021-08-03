@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="SGoogle Drive Access Governance Home.">
+        <link rel="icon" href="{{ url_for('static', filename='icons/main.ico') }}" />
+        <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/main.ico') }}" />
+        <script type="text/javascript" src="{{ url_for('static', filename='js/chart.js') }}"></script>
+        <title>Google Drive Access Governance Home</title>
+    </head>
+    <body>
+        {% extends "template.html" %}
+        {% block content %}
+        <main>
+            <div class="dashboard_field-container">
+                <section>
+                    <div class="dashboard_large_outer_div">
+                        <div class="dashboard_large_div">
+                            {% if Task_Values %}
+							{% if not Result_Values %}
+							<div class="dashboard_small_outer_div">
+							{% else %}
+							<div class="dashboard_small_outer_div_left">
+							{% endif %}
+                                <div class="dashboard_small_div"><p class="dashboard_p">Overview of Current Tasks</p><canvas id="chart1"></canvas>
+                                    <script type="text/javascript">
+                                        var c1data = {{Task_Values[0] | safe}};
+                                        var c1labels = {{Task_Values[1] | safe}};
+                                        var c1colors = {{Task_Values[2] | safe}};
+                                        var dataset = {
+                                            "labels": c1labels,
+                                            "datasets": [
+                                                {
+                                                    "label":"Current Tasks",
+                                                    "data": c1data,
+                                                    "backgroundColor": c1colors
+                                                }
+                                            ]
+                                        };
+
+                                        var chart1var = new Chart(document.getElementById("chart1"), {
+                                            type: 'doughnut',
+                                            data: dataset,
+                                            options: {
+                                                legend: {
+                                                    display: false
+                                                },
+                                                layout: {
+                                                    padding: {
+                                                        left: 1,
+                                                        right: 1,
+                                                        top: 1,
+                                                        bottom: 1
+                                                    }
+                                                }
+                                            }
+                                        });
+
+                                        chart1.onclick = function(evt){
+                                            var activePoints = chart1var.getElementsAtEvent(evt);
+                                            var selectedIndex = activePoints[0]._index;
+                                            var usableIndex = c1labels[selectedIndex];
+                                            if (usableIndex === "Domain Tasks") {
+                                                var url = "/tasks/domain";
+                                                window.open(url);
+                                            } else if (usableIndex === "Email Tasks") {
+                                                var url = "/tasks/email";
+                                                window.open(url);
+                                            }
+                                        };
+                                    </script>
+                                </div>
+                            </div>
+                            {% endif %}
+                            {% if Result_Values %}
+							{% if not Task_Values %}
+							<div class="dashboard_small_outer_div">
+							{% else %}
+							<div class="dashboard_small_outer_div_right">
+							{% endif %}
+                                <div class="dashboard_small_div"><p class="dashboard_p">Overview of Current Results</p><canvas id="chart2"></canvas></div>
+                                   <script type="text/javascript">
+                                        var c2data = {{Result_Values[0] | safe}};
+                                        var c2labels = {{Result_Values[1] | safe}};
+                                        var c2colors = {{Result_Values[2] | safe}};
+                                        var dataset = {
+                                            "labels": c2labels,
+                                            "datasets": [
+                                                {
+                                                    "label":"Current Results",
+                                                    "data": c2data,
+                                                    "backgroundColor": c2colors
+                                                }
+                                            ]
+                                        };
+
+                                        var chart2var = new Chart(document.getElementById("chart2"), {
+                                            type: 'doughnut',
+                                            data: dataset,
+                                            options: {
+                                                legend: {
+                                                    display: false
+                                                },
+                                                layout: {
+                                                    padding: {
+                                                        left: 1,
+                                                        right: 1,
+                                                        top: 1,
+                                                        bottom: 1
+                                                    }
+                                                }
+                                            }
+                                        });
+
+                                        chart2.onclick = function(evt){
+                                            var activePoints = chart2var.getElementsAtEvent(evt);
+                                            var selectedIndex = activePoints[0]._index;
+                                            var usableIndex = c2labels[selectedIndex];
+                                            if (usableIndex === "Open Results") {
+                                                var url = "/results/open";
+                                                window.open(url);
+                                            } else if (usableIndex === "Certified Results") {
+                                                var url = "/results/certified";
+                                                window.open(url);
+                                            }
+                                        };
+                                    </script>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </section>
+                <footer><p class="aboutinfo"><a href="https://github.com/matamorphosis/GDrive-Access-Governance" id="version">Google Drive Access Governance Appliance v1.1</a></p></footer>
+            </div>
+        </main>
+        {% endblock %}
+    </body>
+</html>

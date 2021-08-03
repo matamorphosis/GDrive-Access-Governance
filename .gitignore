@@ -1,0 +1,10 @@
+*credentials.json
+*.db
+*.pickle
+*.log*
+**/__pycache__
+**/protected
+**/python-pinterest-api
+**/certs
+**/lib
+**/dev
