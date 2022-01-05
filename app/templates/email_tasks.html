@@ -6,6 +6,7 @@
         <meta name="description" content="Google Drive Access Governance Email Tasks.">
         <link rel="icon" href="{{ url_for('static', filename='icons/main.ico') }}" />
         <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/main.ico') }}" />
+		<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"/>
         <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.4.1.min.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='js/datatables.min.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='js/main.js') }}"></script>
@@ -24,7 +25,7 @@
 					   <p class="message">Please enable JavaScript to render this page. Otherwise it won't load.</p>
 					</noscript>
 					<div class="inner_form_div">
-						<form class="form_prv" action="{{ url_for('domain_tasks') }}" method=post autocomplete="off">
+						<form class="form_prv" action="{{ url_for('domain_tasks') }}" method=get autocomplete="off">
 							<input style="display: inline-block;" class="button_prv" name="return" type=submit value="< Return to Tasks">
 						</form>
 						<form class="form" action="{{ url_for('new_email_task') }}" method=post autocomplete="off">
@@ -145,9 +146,9 @@
                         <td class="regulartab">{{Task[7]}}</td>
                         <td class="buttons_in_tasks_table" id="tsk_in_tbl_btns">
                             {% if Task[2] == "Running" %}
-                            <form class="task_buttons" action="" method=post autocomplete="off">
-                                <input class="button-disabled" type=submit value="Run" disabled>
-                            </form>
+							<button class="button-running">
+								&nbsp;<i class="fa fa-circle-o-notch fa-spin"></i>&nbsp;
+							</button>
                             {% else %}
                             <form class="task_buttons" action="/tasks/email/run/{{Task[0]}}" method=post autocomplete="off">
                                 <input class="button-run" type=submit value="Run">

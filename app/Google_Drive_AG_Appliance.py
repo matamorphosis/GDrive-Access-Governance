@@ -1,11 +1,10 @@
 #!/usr/bin/python3
-import os, re, pathlib, sys, colorama, logging, datetime, json, sqlite3, threading, time, dateutil.parser
-from flask import Flask, render_template, flash, request, redirect, url_for, session, send_from_directory, jsonify
+import os, re, pathlib, sys, logging, datetime, json, sqlite3, threading, time, dateutil.parser, Certified_Results_Checker
+from flask import Flask, render_template, request, redirect, url_for
 from flask_compress import Compress
 from signal import signal, SIGINT
 from logging.handlers import RotatingFileHandler
-Bad_Characters = ["|", "&", "?", "\\", "\"", "\'", "[", "]", ">", "<", "~", "`", ";", "{", "}", "%", "^", "--", "++",
-                  "+", "'", "(", ")", "*", "="]
+Bad_Characters = ["|", "&", "?", "\\", "\"", "\'", "[", "]", ">", "<", "~", "`", ";", "{", "}", "%", "^", "--", "++", "+", "'", "(", ")", "*", "="]
 
 if __name__ == "__main__":
 
@@ -156,6 +155,7 @@ if __name__ == "__main__":
             DB_Conn.close()
 
         else:
+            Certified_Results_Checker.Check(DB_Filename)
             DB_Conn.executescript(f"""UPDATE domain_tasks SET run_status = "Stopped";""")
             DB_Conn.executescript(f"""UPDATE email_tasks SET run_status = "Stopped";""")
             DB_Conn.commit()
@@ -240,13 +240,13 @@ if __name__ == "__main__":
                 if Open_Results:
 
                     for Open_Result in Open_Results:
-                        Current_Emails = Open_Result[2].split(", ")
+                        Current_Emails = Open_Result[3].split(", ")
                         Total_Open_Emails += Current_Emails
 
                 if Cert_Results:
 
                     for Cert_Result in Cert_Results:
-                        Current_Emails = Cert_Result[2].split(", ")
+                        Current_Emails = Cert_Result[3].split(", ")
                         Total_Cert_Emails += Current_Emails
                 
                 Task_Values = [Email_Tasks[0], Domain_Tasks[0]]
@@ -479,6 +479,7 @@ if __name__ == "__main__":
                 New_Task = API_Caller(taskid, "Emails")
                 New_Thread = threading.Thread(target=New_Task.Call_API)
                 New_Thread.start()
+                time.sleep(1)
                 return redirect(url_for('email_tasks'))
 
             except Exception as e:
@@ -493,6 +494,7 @@ if __name__ == "__main__":
                 New_Task = API_Caller(taskid, "Domains")
                 New_Thread = threading.Thread(target=New_Task.Call_API)
                 New_Thread.start()
+                time.sleep(1)
                 return redirect(url_for('domain_tasks'))
 
             except Exception as e:

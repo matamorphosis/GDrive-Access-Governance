@@ -1,3 +1,5 @@
+[![Github Sponsorship](/installation/images/github_sponsor_btn.svg)](https://github.com/sponsors/matamorphosis)
+
 # Google Drive Access Governance
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)  
 A simple snitch tool which alerts any Google Drive user who has access to their files who may pose a security risk.
@@ -81,3 +83,12 @@ Lastly, there is one additional argument -ps or --pagesize. This argument contro
 Below there is an example of the output that can be expected. The names and email addresses have been excluded for privacy purposes.
 
 ![Results](/installation/images/Example_Terminal_Output.png)
+
+# List of Current Monthly Sponsors
+[Endure Secure Pty Ltd](https://endsec.com.au/)
+<p align="left">
+  <img width="231" height="72" src="https://github.com/matamorphosis/Scrummage/blob/master/installation/images_dark_theme/Sponsor_Endure_Secure.png">
+</p>
+
+## Become a Sponsor Now!
+[![Github Sponsorship](/installation/images/github_sponsor_btn.svg)](https://github.com/sponsors/matamorphosis)

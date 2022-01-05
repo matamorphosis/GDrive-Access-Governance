@@ -143,7 +143,6 @@ class Main:
                 else:
                     File_Dir = os.path.dirname(os.path.realpath('__file__'))
                     Configuration_File = os.path.join(File_Dir, 'config/credentials.json')
-                    print(Configuration_File )
                     flow = InstalledAppFlow.from_client_secrets_file(Configuration_File, Scope)
                     Credentials = flow.run_local_server(port=0)
 
@@ -160,7 +159,7 @@ class Main:
 
         try:
 
-            if Item.get("mimeType") and Item.get("mimeType") != 'application/vnd.google-apps.folder':
+            if Item.get("mimeType") and Item.get("mimeType") != 'application/vnd.google-apps.folder' and Item.get("trashed"):
                 File_Permissions = self.Service.permissions().list(fileId=Item["id"], fields="*").execute()
                 Permission_Details = File_Permissions.get('permissions', [])
                 self.Current_File_ID = ""
@@ -172,7 +171,13 @@ class Main:
                         
                         if not Match:
                             self.Current_File_ID = Item['id']
-                            self.Current_Prints = {"File_ID": str(Item['id']), "File_Name": str(Item['name']), "Trashed": Item["trashed"], "Emails": [str(Permission_Detail['emailAddress'])]}
+                            self.Current_Prints = {"File_ID": str(Item['id']), "File_Name": str(Item['name']), "Emails": [str(Permission_Detail['emailAddress'])]}
+
+                            if "trashed" in Item:
+                                self.Current_Prints["Trashed"] = Item["trashed"]
+
+                            else:
+                                self.Current_Prints["Trashed"] = False
 
                         else:
                             self.Current_Prints["Emails"].append(str(Permission_Detail['emailAddress']))
@@ -180,7 +185,6 @@ class Main:
                         if self.kwargs["Auto Function"] == "Revoke":
                             self.Auto_Function(Item['id'], Permission_Detail['id'], Permission_Detail['emailAddress'])
                                 
-                    
                     except Exception as e:
                         sys.exit(f'[-] {str(e)}.')
 

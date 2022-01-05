@@ -64,6 +64,33 @@ body {
     background-color: #000;
 }
 
+body::-webkit-scrollbar {
+    width: 5px;
+    cursor: pointer;
+    -webkit-transition: all 0.30s ease-in-out;
+    -moz-transition: all 0.30s ease-in-out;
+    -ms-transition: all 0.30s ease-in-out;
+    -o-transition: all 0.30s ease-in-out;
+}
+
+body::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0);
+}
+
+body::-webkit-scrollbar-thumb {
+    background-color: #303030;
+    border-radius: 2px;
+    cursor: pointer;
+    -webkit-transition: all 0.30s ease-in-out;
+    -moz-transition: all 0.30s ease-in-out;
+    -ms-transition: all 0.30s ease-in-out;
+    -o-transition: all 0.30s ease-in-out;
+}
+
+body::-webkit-scrollbar-thumb:hover {
+    background-color: grey;
+}
+
 header {
     padding-left: 10px;
 }
@@ -74,11 +101,6 @@ form dl dd {
 
 footer {
     bottom: 8px;
-}
-
-textarea:focus {
-    border: 1px solid grey;
-    box-shadow: 0 0 5px grey;
 }
 
 input {
@@ -103,6 +125,40 @@ textarea {
     background-color: #1A1A1A;
     border: 1px solid #303030;
     color: #fff;
+    box-sizing: border-box;
+    resize: none;
+}
+
+textarea::-webkit-scrollbar {
+    width: 5px;
+    cursor: pointer;
+    -webkit-transition: all 0.30s ease-in-out;
+    -moz-transition: all 0.30s ease-in-out;
+    -ms-transition: all 0.30s ease-in-out;
+    -o-transition: all 0.30s ease-in-out;
+}
+
+textarea::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0);
+}
+
+textarea::-webkit-scrollbar-thumb {
+    background-color: #303030;
+    border-radius: 2px;
+    cursor: pointer;
+    -webkit-transition: all 0.30s ease-in-out;
+    -moz-transition: all 0.30s ease-in-out;
+    -ms-transition: all 0.30s ease-in-out;
+    -o-transition: all 0.30s ease-in-out;
+}
+
+textarea::-webkit-scrollbar-thumb:hover {
+    background-color: grey;
+}
+
+textarea:focus {
+    border: 1px solid grey;
+    box-shadow: 0 0 5px grey;
 }
 
 select {
@@ -118,7 +174,30 @@ select {
     border: 0px solid transparent;
 }
 
-select:hover {
+select::-webkit-scrollbar {
+    width: 5px;
+    cursor: pointer;
+    -webkit-transition: all 0.30s ease-in-out;
+    -moz-transition: all 0.30s ease-in-out;
+    -ms-transition: all 0.30s ease-in-out;
+    -o-transition: all 0.30s ease-in-out;
+}
+
+select::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0);
+}
+
+select::-webkit-scrollbar-thumb {
+    background-color: #303030;
+    border-radius: 2px;
+    cursor: pointer;
+    -webkit-transition: all 0.30s ease-in-out;
+    -moz-transition: all 0.30s ease-in-out;
+    -ms-transition: all 0.30s ease-in-out;
+    -o-transition: all 0.30s ease-in-out;
+}
+
+select::-webkit-scrollbar-thumb:hover {
     background-color: grey;
 }
 
@@ -539,23 +618,6 @@ table.dataTable,table.dataTable th,table.dataTable td
     -o-transition: all 0.30s ease-in-out;
 }
 
-.button_inverse {
-    text-decoration: none;
-    color: #fff;
-    padding: 5px;
-    font-size: 10pt;
-    border-radius: 2px;
-    box-shadow: none;
-    outline: none;
-    border: 0;
-    background-color: #000;
-    -webkit-transition: all 0.30s ease-in-out;
-    -moz-transition: all 0.30s ease-in-out;
-    -ms-transition: all 0.30s ease-in-out;
-    -o-transition: all 0.30s ease-in-out;
-}
-
-
 .button-red {
     text-decoration: none;
     color: #fff;
@@ -578,6 +640,24 @@ table.dataTable,table.dataTable th,table.dataTable td
     padding: 4px;
     border-radius: 2px;
     box-shadow: none;
+    outline: none;
+    border: 0;
+    background-color: #303030;
+    border: 1px solid #303030;
+    -webkit-transition: all 0.30s ease-in-out;
+    -moz-transition: all 0.30s ease-in-out;
+    -ms-transition: all 0.30s ease-in-out;
+    -o-transition: all 0.30s ease-in-out;
+}
+
+.button-running {
+    text-decoration: none;
+    color: #fff;
+    padding: 4px;
+    border-radius: 2px;
+    box-shadow: none;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
     outline: none;
     border: 0;
     background-color: #303030;
@@ -635,10 +715,6 @@ table.dataTable,table.dataTable th,table.dataTable td
 }
 
 .button:hover {
-    background-color: grey;
-}
-
-.button_inverse:hover {
     background-color: grey;
 }
 
@@ -880,24 +956,6 @@ table.dataTable,table.dataTable th,table.dataTable td
     width: 99%;
 }
 
-.email_field_textarea {
-    background-color: #000;
-    padding: 5px;
-    box-shadow: none;
-    -webkit-box-shadow: none;
-    -moz-box-shadow: none;
-    outline: none;
-    width: 98%;
-    border-radius: 2px;
-    color: #fff;
-    border: 1px solid #303030;
-}
-
-.email_field_textarea:focus {
-    border: 1px solid grey;
-    box-shadow: 0 0 5px grey;
-}
-
 .field_textarea {
     background-color: #1A1A1A;
     padding: 5px;
@@ -909,6 +967,7 @@ table.dataTable,table.dataTable th,table.dataTable td
     border-radius: 2px;
     color: #fff;
     border: 1px solid #303030;
+    box-sizing: border-box;
 }
 
 .field_textarea:focus {
@@ -1046,22 +1105,12 @@ input[type="search"]:hover::placeholder {
 
 #add_user_form_div {
     position: absolute;
-    top: 0%;
+    top: 30px;
     width: 30%;
     right: 0%;
     padding: 10px;
-    background-color: #303030;
-}
-
-.add_user_bool_form {
-    background-color: #000;
-}
-
-#logintitle {
-    color: #303030;
-    font-size: 14pt;
-    padding: 30px 0px 5px 0px;
-    text-align: center;
+    background-color: #1A1A1A;
+    border: 1px solid #303030;
 }
 
 .logo {

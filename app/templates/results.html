@@ -84,16 +84,16 @@
                     <form id="add_user_form" action="" method=post autocomplete="off">
                         <dl>
                             <dd>
-                                <button type="button" class="button_inverse" onclick="hideForm()" id="collapse">×</button>
+                                <button type="button" class="button" onclick="hideForm()" id="collapse">× Close</button>
                             </dd>
                             <dd>
-                                <input class="email_field_textarea" name=email placeholder="* Email Address Identity" value="">
+                                <input class="field_textarea" name=email placeholder="* Email Address Identity" value="">
                             </dd>
                             <dd class="label_dd">
                                 <label>Please select which kind of role you would like to assign to the provided identity.</label>
                             </dd>
                             <dd>
-                                <select class="add_user_bool_form" name="role" size="6">
+                                <select class="bool_form" name="role" size="6">
                                     <option value="owner">Owner Role</option>
                                     <option value="organizer">Organiser Role</option>
                                     <option value="fileOrganizer">File Organiser Role</option>
@@ -106,7 +106,7 @@
                                 <label>Please select which type of grantee the provided identity is.</label>
                             </dd>
                             <dd>
-                                <select class="add_user_bool_form" name="grantee" size="4">
+                                <select class="bool_form" name="grantee" size="4">
                                     <option value="user">User</option>
                                     <option value="group">Group</option>
                                     <option value="domain">Domain</option>
@@ -114,7 +114,7 @@
                                 </select>
                             </dd>
                         </dl>
-                        <input style="display: inline-block;" class="button_inverse" id="sharesubmit" name="finishtask" type=submit value="">
+                        <input style="display: inline-block;" class="button" id="sharesubmit" name="finishtask" type=submit value="">
                     </form>
                 </div>
                 <script type="text/javascript">
