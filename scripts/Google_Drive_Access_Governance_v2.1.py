@@ -383,24 +383,22 @@ class Main:
             Response = self.Service.files().list(pageSize=Page_Size, fields="nextPageToken, files(id, name)",).execute()
             Page_Start = 0
             Page = 1
-
-            if 'nextPageToken' in Response:
                 
-                while 'nextPageToken' in Response:
-                    Result_Items = Response.get('files', [])
+            while 'nextPageToken' in Response:
+                Result_Items = Response.get('files', [])
 
-                    if not Result_Items:
-                        print(f'[i] No files found.')
+                if not Result_Items:
+                    print(f'[i] No files found.')
 
-                    else:
-                        print(f"[+] Pages broken down into {str(Page_Size)} results at a time. Searching for potential access violations on page {str(Page)}. Searching through results {str(Page_Start + 1)} to {str(Page_Start + Page_Size)}")
+                else:
+                    print(f"[+] Pages broken down into {str(Page_Size)} results at a time. Searching for potential access violations on page {str(Page)}. Searching through results {str(Page_Start + 1)} to {str(Page_Start + Page_Size)}")
 
-                        for Item in Result_Items:
-                            nextPageTokenIteration(self, Item, kwargs,)
+                    for Item in Result_Items:
+                        nextPageTokenIteration(self, Item, kwargs,)
 
-                    Response = self.Service.files().list(pageSize=Page_Size, pageToken=Response['nextPageToken'], fields="nextPageToken, files(id, name)",).execute()
-                    Page += 1
-                    Page_Start += Page_Size
+                Response = self.Service.files().list(pageSize=Page_Size, pageToken=Response['nextPageToken'], fields="nextPageToken, files(id, name)",).execute()
+                Page += 1
+                Page_Start += Page_Size
 
             else:
                 Result_Items = Response.get('files', [])
