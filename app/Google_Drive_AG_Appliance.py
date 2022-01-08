@@ -2,6 +2,7 @@
 import os, re, pathlib, sys, logging, datetime, json, sqlite3, threading, time, dateutil.parser, Certified_Results_Checker
 from flask import Flask, render_template, request, redirect, url_for
 from flask_compress import Compress
+from flask_wtf.csrf import CSRFProtect, CSRFError
 from signal import signal, SIGINT
 from logging.handlers import RotatingFileHandler
 Bad_Characters = ["|", "&", "?", "\\", "\"", "\'", "[", "]", ">", "<", "~", "`", ";", "{", "}", "%", "^", "--", "++", "+", "'", "(", ")", "*", "="]
@@ -30,6 +31,7 @@ if __name__ == "__main__":
             File_Path = os.path.dirname(os.path.realpath('__file__'))
             app = Flask(__name__, instance_path=os.path.join(File_Path, 'static/protected'))
             Compress(app)
+            csrf = CSRFProtect(app)
             app.config.update(
                 SESSION_COOKIE_SECURE=True,
                 SESSION_COOKIE_HTTPONLY=True,
@@ -54,9 +56,11 @@ if __name__ == "__main__":
                 WA_Debug = Configuration_Data['web-app']['debug']
                 WA_Host = Configuration_Data['web-app']['host']
                 WA_Port = Configuration_Data['web-app']['port']
+                WA_Cert = Configuration_Data['web-app']['certificate_file']
+                WA_Key = Configuration_Data['web-app']['key_file']
 
                 if WA_Host and WA_Port:
-                    return [WA_Debug, WA_Host, WA_Port]
+                    return [WA_Debug, WA_Host, WA_Port, WA_Cert, WA_Key]
 
                 else:
                     return None
@@ -194,6 +198,16 @@ if __name__ == "__main__":
             except Exception as e:
                 app.logger.error(e)
 
+        @app.errorhandler(400)
+        def bad_request(e):
+
+            try:
+                return render_template('bad_request.html'), 400
+
+            except Exception as e:
+                app.logger.error(e)
+                return redirect(url_for('index'))
+
         @app.errorhandler(404)
         def page_not_found(e):
 
@@ -202,7 +216,7 @@ if __name__ == "__main__":
 
             except Exception as e:
                 app.logger.error(e)
-
+                return redirect(url_for('index'))
 
         @app.errorhandler(405)
         def method_not_allowed(e):
@@ -212,7 +226,9 @@ if __name__ == "__main__":
 
             except Exception as e:
                 app.logger.error(e)
+                return redirect(url_for('index'))
 
+        app.register_error_handler(400, bad_request)
         app.register_error_handler(404, page_not_found)
         app.register_error_handler(405, method_not_allowed)
 
@@ -443,12 +459,23 @@ if __name__ == "__main__":
         def email_task_delete(taskid):
 
             try:
-                taskid = str(int(taskid))
-                DB_Conn = sqlite3.connect(DB_Filename)
-                DB_Cursor = DB_Conn.cursor()
-                DB_Cursor.execute(f"""DELETE from email_tasks where id = {taskid}""")
-                DB_Conn.commit()
-                DB_Conn.close()
+
+                def del_task(del_id):
+                    tid = str(int(del_id))
+                    DB_Conn = sqlite3.connect(DB_Filename)
+                    DB_Cursor = DB_Conn.cursor()
+                    DB_Cursor.execute(f"""DELETE from email_tasks where id = {tid}""")
+                    DB_Conn.commit()
+                    DB_Conn.close()
+
+                if "," in taskid:
+
+                    for task in taskid.split(","):
+                        del_task(task)
+
+                else:
+                    del_task(taskid)
+
                 return redirect(url_for('email_tasks'))
 
             except Exception as e:
@@ -459,12 +486,23 @@ if __name__ == "__main__":
         def domain_task_delete(taskid):
 
             try:
-                taskid = str(int(taskid))
-                DB_Conn = sqlite3.connect(DB_Filename)
-                DB_Cursor = DB_Conn.cursor()
-                DB_Cursor.execute(f"""DELETE from domain_tasks where id = {taskid}""")
-                DB_Conn.commit()
-                DB_Conn.close()
+
+                def del_task(del_id):
+                    tid = str(int(del_id))
+                    DB_Conn = sqlite3.connect(DB_Filename)
+                    DB_Cursor = DB_Conn.cursor()
+                    DB_Cursor.execute(f"""DELETE from domain_tasks where id = {tid}""")
+                    DB_Conn.commit()
+                    DB_Conn.close()
+
+                if "," in taskid:
+
+                    for task in taskid.split(","):
+                        del_task(task)
+
+                else:
+                    del_task(taskid)
+
                 return redirect(url_for('domain_tasks'))
 
             except Exception as e:
@@ -516,6 +554,10 @@ if __name__ == "__main__":
                 app.logger.error(e)
                 return redirect(url_for('index'))
 
+        @app.route('/results', methods=['GET'])
+        def redirect_results():
+            return redirect(url_for('results'))
+
         @app.route('/results/certified', methods=['GET'])
         def results_certified():
 
@@ -553,46 +595,59 @@ if __name__ == "__main__":
                 app.logger.error(e)
                 return redirect(url_for('results'))
 
-        @app.route('/results/revoke/<resultid>', methods=['POST'])
-        def result_revoke(resultid):
+        @app.route('/results/revoke', methods=['POST'])
+        def result_revoke():
 
             try:
 
-                if 'email' in request.form:
+                if 'file' in request.form and 'emails' in request.form:
+                    file = request.form['file']
+                    emails = request.form['emails']
 
-                    if not any(char in resultid for char in ["(", ")", ";", "--", "++", "\"", "\'"]):
+                    if not any(char in file for char in ["(", ")", ";", "--", "++", "\"", "\'"]):
 
-                        def nested_result_revocation_function(Result_ID, Request_Form):
-                            DB_Conn = sqlite3.connect(DB_Filename)
-                            DB_Cursor = DB_Conn.cursor()
-                            DB_Cursor.execute(f"""SELECT emails FROM certified_results WHERE id = '{Result_ID}';""")
-                            Cert_Results = DB_Cursor.fetchone()
+                        def nested_result_revocation_function(emails, Result_ID):
 
-                            if not Cert_Results:
-                                DB_Cursor.execute(f"""SELECT emails FROM open_results WHERE id = '{Result_ID}';""")
-                                DB_Results = DB_Cursor.fetchone()
-                                Email_List = DB_Results[0].split(", ")
+                            def Revoker(email, Result_ID_Inner):
+                                DB_Conn = sqlite3.connect(DB_Filename)
+                                DB_Cursor = DB_Conn.cursor()
+                                DB_Cursor.execute(f"""SELECT emails FROM certified_results WHERE id = '{Result_ID_Inner}';""")
+                                Cert_Results = DB_Cursor.fetchone()
 
-                                if Request_Form["email"] in Email_List:
-                                    import GDAG_Lib
-                                    Google_Drive = GDAG_Lib.Main(DB_Filename)
-                                    Revoked = Google_Drive.Revoke_Access(Result_ID, Request_Form["email"])
+                                if not Cert_Results:
+                                    DB_Cursor.execute(f"""SELECT emails FROM open_results WHERE id = '{Result_ID_Inner}';""")
+                                    DB_Results = DB_Cursor.fetchone()
+                                    Email_List = DB_Results[0].split(", ")
 
-                                    if Revoked:
-                                        Email_List.remove(Request_Form["email"])
+                                    if email in Email_List:
+                                        import GDAG_Lib
+                                        Google_Drive = GDAG_Lib.Main(DB_Filename)
+                                        Revoked = Google_Drive.Revoke_Access(Result_ID_Inner, email)
 
-                                        if Email_List == []:
-                                            DB_Cursor.execute(f"""DELETE from open_results where id = "{Result_ID}";""")
-                                            DB_Conn.commit()
+                                        if Revoked:
+                                            Email_List.remove(email)
 
-                                        else:
-                                            Emails = ", ".join(Email_List)
-                                            DB_Cursor.execute(f"""UPDATE open_results SET emails = "{Emails}" WHERE id = "{Result_ID}";""")
-                                            DB_Conn.commit()
+                                            if Email_List == []:
+                                                DB_Cursor.execute(f"""DELETE from open_results where id = "{Result_ID_Inner}";""")
+                                                DB_Conn.commit()
+
+                                            else:
+                                                Emails = ", ".join(Email_List)
+                                                Updated = str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+                                                DB_Cursor.execute(f"""UPDATE open_results SET emails = "{Emails}", updated_at = "{Updated}" WHERE id = "{Result_ID_Inner}";""")
+                                                DB_Conn.commit()
 
                                 DB_Conn.close()
 
-                        Thread_1 = threading.Thread(target=nested_result_revocation_function, args=(resultid, request.form))
+                            if "," in emails:
+
+                                for eml in emails.split(","):
+                                    Revoker(eml, Result_ID)
+
+                            else:
+                                Revoker(emails, Result_ID)
+
+                        Thread_1 = threading.Thread(target=nested_result_revocation_function, args=(emails, file))
                         Thread_1.start()
                         return redirect(url_for('results'))
 
@@ -606,66 +661,85 @@ if __name__ == "__main__":
                 app.logger.error(e)
                 return redirect(url_for('results'))
 
-        @app.route('/results/certify/<resultid>', methods=['POST'])
-        def result_certify(resultid):
+        @app.route('/results/certify/', methods=['POST'])
+        def result_certify():
 
             try:
 
-                if 'email' in request.form:
+                if 'file' in request.form and 'emails' in request.form:
+                    file = request.form['file']
+                    emails = request.form['emails']
 
-                    if not any(char in resultid for char in ["(", ")", ";", "--", "++", "\"", "\'"]):
-                        DB_Conn = sqlite3.connect(DB_Filename)
-                        DB_Cursor = DB_Conn.cursor()
-                        DB_Cursor.execute(f"""SELECT * FROM open_results WHERE id = '{resultid}';""")
-                        Open_Results = DB_Cursor.fetchone()
-                        DB_Cursor.execute(f"""SELECT * FROM certified_results WHERE id = '{resultid}';""")
-                        Cert_Results = DB_Cursor.fetchone()
-                        Open_Results_Email_List = Open_Results[3].split(", ")
-                        Cert_Results_Email_List = []
+                    if not any(char in file for char in ["(", ")", ";", "--", "++", "\"", "\'"]):
 
-                        if Cert_Results:
-                            Cert_Results_Email_List = Cert_Results[3].split(", ")
+                        def nested_result_revocation_function(emails, Result_ID):
 
-                        if request.form["email"] in Open_Results_Email_List:
-                            Open_Results_Email_List.remove(request.form["email"])
+                            def Revoker(email, Result_ID_Inner):
+                                DB_Conn = sqlite3.connect(DB_Filename)
+                                DB_Cursor = DB_Conn.cursor()
+                                DB_Cursor.execute(f"""SELECT * FROM open_results WHERE id = '{Result_ID_Inner}';""")
+                                Open_Results = DB_Cursor.fetchone()
+                                DB_Cursor.execute(f"""SELECT * FROM certified_results WHERE id = '{Result_ID_Inner}';""")
+                                Cert_Results = DB_Cursor.fetchone()
+                                Open_Results_Email_List = Open_Results[3].split(", ")
+                                Cert_Results_Email_List = []
+                                Updated = str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
 
-                            if Cert_Results:
-                                Cert_Results_Email_List.append(request.form["email"])
+                                if Cert_Results:
+                                    Cert_Results_Email_List = Cert_Results[3].split(", ")
 
-                                if Open_Results_Email_List == []:
-                                    Emails = ", ".join(Cert_Results_Email_List)
-                                    DB_Cursor.execute(f"""DELETE from open_results where id = "{resultid}";""")
-                                    DB_Cursor.execute(f"""UPDATE certified_results SET emails = "{Emails}" WHERE id = "{resultid}";""")
-                                    DB_Conn.commit()
+                                if email in Open_Results_Email_List:
+                                    Open_Results_Email_List.remove(email)
+
+                                    if Cert_Results:
+                                        Cert_Results_Email_List.append(email)
+
+                                        if Open_Results_Email_List == []:
+                                            Emails = ", ".join(Cert_Results_Email_List)
+                                            DB_Cursor.execute(f"""DELETE from open_results where id = "{Result_ID_Inner}";""")
+                                            DB_Cursor.execute(f"""UPDATE certified_results SET emails = "{Emails}", updated_at = "{Updated}" WHERE id = "{Result_ID_Inner}";""")
+                                            DB_Conn.commit()
+
+                                        else:
+                                            Open_Emails = ", ".join(Open_Results_Email_List)
+                                            Cert_Emails = ", ".join(Cert_Results_Email_List)
+                                            DB_Cursor.execute(f"""UPDATE open_results SET emails = "{Open_Emails}", updated_at = "{Updated}" WHERE id = "{Result_ID_Inner}";""")
+                                            DB_Cursor.execute(f"""UPDATE certified_results SET emails = "{Cert_Emails}", updated_at = "{Updated}" WHERE id = "{Result_ID_Inner}";""")
+                                            DB_Conn.commit()
+
+                                    else:
+                                        Cert_Results_Email_List = [email]
+
+                                        if Open_Results_Email_List == []:
+                                            Emails = ", ".join(Cert_Results_Email_List)
+                                            DB_Cursor.execute(f"""DELETE from open_results where id = "{Result_ID_Inner}";""")
+                                            DB_Cursor.execute(f"""INSERT INTO certified_results (id, file_name, trashed, emails, created_at, updated_at) values ('{Open_Results[0]}', '{Open_Results[1]}', '{Open_Results[2]}', '{Emails}', '{Open_Results[4]}', '{Updated}');""")
+                                            DB_Conn.commit()
+
+                                        else:
+                                            Open_Emails = ", ".join(Open_Results_Email_List)
+                                            Cert_Emails = ", ".join(Cert_Results_Email_List)
+                                            DB_Cursor.execute(f"""UPDATE open_results SET emails = "{Open_Emails}", updated_at = "{Updated}" WHERE id = "{Result_ID_Inner}";""")
+                                            DB_Cursor.execute(f"""INSERT INTO certified_results (id, file_name, trashed, emails, created_at, updated_at) values ('{Open_Results[0]}', '{Open_Results[1]}', '{Open_Results[2]}', '{Cert_Emails}', '{Open_Results[4]}', '{Updated}');""")
+                                            DB_Conn.commit()
 
                                 else:
-                                    Open_Emails = ", ".join(Open_Results_Email_List)
-                                    Cert_Emails = ", ".join(Cert_Results_Email_List)
-                                    DB_Cursor.execute(f"""UPDATE open_results SET emails = "{Open_Emails}" WHERE id = "{resultid}";""")
-                                    DB_Cursor.execute(f"""UPDATE certified_results SET emails = "{Cert_Emails}" WHERE id = "{resultid}";""")
-                                    DB_Conn.commit()
+                                    return redirect(url_for('results'))
+
+                                DB_Conn.close()
+
+                            if "," in emails:
+
+                                for eml in emails.split(","):
+                                    Revoker(eml, Result_ID)
 
                             else:
-                                Cert_Results_Email_List = [request.form["email"]]
+                                Revoker(emails, Result_ID)
 
-                                if Open_Results_Email_List == []:
-                                    Emails = ", ".join(Cert_Results_Email_List)
-                                    DB_Cursor.execute(f"""DELETE from open_results where id = "{resultid}";""")
-                                    DB_Cursor.execute(f"""INSERT INTO certified_results (id, file_name, trashed, emails, created_at) values ('{Open_Results[0]}', '{Open_Results[1]}', '{Open_Results[2]}', '{Emails}', '{Open_Results[4]}');""")
-                                    DB_Conn.commit()
-
-                                else:
-                                    Open_Emails = ", ".join(Open_Results_Email_List)
-                                    Cert_Emails = ", ".join(Cert_Results_Email_List)
-                                    DB_Cursor.execute(f"""UPDATE open_results SET emails = "{Open_Emails}" WHERE id = "{resultid}";""")
-                                    DB_Cursor.execute(f"""INSERT INTO certified_results (id, file_name, trashed, emails, created_at) values ('{Open_Results[0]}', '{Open_Results[1]}', '{Open_Results[2]}', '{Cert_Emails}', '{Open_Results[4]}');""")
-                                    DB_Conn.commit()
-
-                        else:
-                            return redirect(url_for('results'))
-
-                        DB_Conn.close()
+                        Thread_1 = threading.Thread(target=nested_result_revocation_function, args=(emails, file))
+                        Thread_1.start()
                         return redirect(url_for('results'))
+
 
                     else:
                         return redirect(url_for('results'))
@@ -712,19 +786,20 @@ if __name__ == "__main__":
                                     import GDAG_Lib
                                     Google_Drive = GDAG_Lib.Main(DB_Filename)
                                     Provisioned = Google_Drive.Provision_Access(Result_ID, Transfer_Ownership, {"role": Request_Form['role'], "type": Request_Form['grantee'], "emailAddress": Request_Form["email"]})
+                                    Updated = str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
 
                                     if Provisioned:
 
                                         if Cert_Results:
                                             Cert_Results_Email_List.append(Request_Form["email"])
                                             Emails = ", ".join(Cert_Results_Email_List)
-                                            DB_Cursor.execute(f"""UPDATE certified_results SET emails = "{Emails}" WHERE id = "{Result_ID}";""")
+                                            DB_Cursor.execute(f"""UPDATE certified_results SET emails = "{Emails}", updated_at = "{Updated}" WHERE id = "{Result_ID}";""")
                                             DB_Conn.commit()
 
                                         else:
                                             Cert_Results_Email_List = [Request_Form["email"]]
                                             Emails = ", ".join(Cert_Results_Email_List)
-                                            DB_Cursor.execute(f"""INSERT INTO certified_results (id, file_name, trashed, emails, created_at) values ('{Open_Results[0]}', '{Open_Results[1]}', '{Open_Results[2]}', '{Emails}', '{Open_Results[4]}');""")
+                                            DB_Cursor.execute(f"""INSERT INTO certified_results (id, file_name, trashed, emails, created_at, updated_at) values ('{Open_Results[0]}', '{Open_Results[1]}', '{Open_Results[2]}', '{Emails}', '{Open_Results[4]}', '{Updated}');""")
                                             DB_Conn.commit()
 
                                 DB_Conn.close()
@@ -746,7 +821,21 @@ if __name__ == "__main__":
                 app.logger.error(e)
                 return redirect(url_for('results'))
 
-        app.run(debug=Application_Details[0], host=Application_Details[1], port=Application_Details[2], threaded=True)
+        if (Application_Details[3] and Application_Details[4]) and all(os.path.exists(Config) for Config in [Application_Details[3], Application_Details[4]]):
+
+            try:
+                import ssl
+                context = ssl.SSLContext(ssl.PROTOCOL_TLS)
+                context.load_cert_chain(certfile=Application_Details[3], keyfile=Application_Details[4])
+
+            except Exception as e:
+                app.logger.fatal(f'Error initiating SSL - {str(e)}.')
+                sys.exit()
+
+            app.run(debug=Application_Details[0], host=Application_Details[1], port=Application_Details[2], threaded=True, ssl_context=context)
+
+        else:
+            app.run(debug=Application_Details[0], host=Application_Details[1], port=Application_Details[2], threaded=True)
 
     except Exception as e:
         sys.exit(f"[-] {str(e)}.")

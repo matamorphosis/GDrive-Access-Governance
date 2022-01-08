@@ -8,7 +8,9 @@
         <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/main.ico') }}" />
         <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.4.1.min.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='js/datatables.min.js') }}"></script>
+        {% if not review_page %}
         <script type="text/javascript" src="{{ url_for('static', filename='js/main.js') }}"></script>
+        {% endif %}
         <title>Google Drive Access Governance Results</title>
     </head>
     <body onload="myFunction()" style="margin:0;">
@@ -20,7 +22,17 @@
                 <p class="message">Please enable JavaScript to render this page. Otherwise it won't load.</p>
             </noscript>
             <p id="loader-message" class="loaderabout">Loading Open Results...</p>
+            {% if review_page %}
+            <div id="outerleftpop" class="left_pop_out_outer" style="display: none;"><div class="left_pop_out_mid"><div id="arrow" class="left_pop_out_inner"><p id="functions">&nbsp;</p></div><div id="innerleftpop" class="left_pop_out_inner_lower" style="height: 100%;">
+                <div><p class="left_title_top">Task Management</p><br />
+                    <a id="bottom_certify_button" class="left_button-disabled" onclick="return confirm('Are you sure you want to certify the following results: ' + getSelectValues() + '?') && sendRequest('Certify', '{{Result_ID}}');" disabled="true">Certify</a>
+                    <a id="bottom_revoke_button" class="left_button-disabled" onclick="return confirm('Are you sure you want to revoke the following results: ' + getSelectValues() + '?') && sendRequest('Revoke', '{{Result_ID}}');" disabled="true">Revoke</a>
+                </div>
+            </div></div></div>
+            <div style="display: none;" id="fc" class="field-container-settings">
+            {% else %}
             <div style="display: none;" id="fc" class="field-container">
+            {% endif %}
                 {% if error %}
                     <p class="message"><strong>Error:</strong> {{error}}</p>
                 {% endif %}
@@ -28,30 +40,155 @@
                 <table style="width: 100%" id="paginate">
                     <thead>
                         <tr>
+                            <th id="checkboxtd"><input type="checkbox" onclick="checkAll(this)" id="mainselect" name="taskchkbox"></th>
                             <th>File ID</th>
                             <th>Email Address</th>
-                            <th>Access Functions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for result in Results %}
                         <tr>
+                            <td id="checkboxtd"><input type="checkbox" onclick="terms_changed(this)" id="select" name="taskchkbox" value="{{result}}"></td>
                             <td class="regulartab">{{Result_ID}}</td>
                             <td class="regulartab">{{result}}</td>
-                            <td style="width: 350px; min-width: 350px; max-width: 350px;" class="buttons_in_tasks_table" id="tsk_in_tbl_btns">
-                                <form class="task_buttons" action="/results/certify/{{Result_ID}}" method=post autocomplete="off">
-                                    <input type="hidden" name="email" value="{{result}}">
-                                    <input class="button-run" type=submit value="Certify">
-                                </form>
-                                <form class="task_buttons" action="/results/revoke/{{Result_ID}}" method=post autocomplete="off">
-                                    <input type="hidden" name="email" value="{{result}}">
-                                    <input onclick="return confirm('Are you sure you want to revoke the access {{result}} has to the file: {{Result_ID}}?');"class="button-red" type=submit value="Revoke">
-                                </form>
-                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
+                <script type="text/javascript">
+                    var height = 0.7 * screen.height;
+                    height = height.toString() + "px";
+                    $(document).ready(function(){
+                        $('#paginate').DataTable({
+                        "scrollY": height,
+                        "scrollCollapse": true,
+                        "paging": true,
+                        "pageLength": 25,
+                        "autoWidth": true,
+                        columns: [
+                            { orderable: false },
+                            null,
+                            null,
+                            { orderable: false }
+                        ]
+                        });
+                        $('.dataTables_length').addClass('bs-select');
+                    });
+
+                    var myVar;
+
+                    function myFunction() {
+                        myVar = setTimeout(showPage, 1000);
+                    }
+
+                    function showPage() {
+                        document.getElementById("loader").style.display = "none";
+                        document.getElementById("loader-message").style.display = "none";
+                        document.getElementById("paginate").style.display = null;
+                        document.getElementById("outerleftpop").style.display = null;
+                        document.getElementById("fc").style.display = null;
+                        document.getElementsByTagName("INPUT")[0].placeholder='Search';
+                        document.getElementsByTagName("INPUT")[0].className='js_search';
+                        var table = $('#paginate').DataTable();
+                        table.columns.adjust().draw();
+                    }
+
+                    function getSelectValues() {
+                        var checkedArray = []
+                        document.querySelectorAll('#select:checked').forEach(e => {
+                            checkedArray.push(e.value);
+                        });
+                        checkedArrayStr = checkedArray.toString();
+                        return checkedArrayStr
+                    }
+
+                    function terms_changed(termsCheckBox){
+                        var buttons = [["bottom_certify_button", "Certify"], ["bottom_revoke_button", "Revoke"]]
+                        if (termsCheckBox.checked) {
+                            buttons.forEach(button => {
+                                document.getElementById(button[0]).className = "left_button";
+                                document.getElementById(button[0]).disabled = false;
+                            });
+                            document.getElementById("mainselect").checked = true;
+                        } else {
+                            if($('#select:checked').length === 0) {
+                                buttons.forEach(button => {
+                                    document.getElementById(button[0]).disabled = true;
+                                    document.getElementById(button[0]).className = "left_button-disabled";
+                                });
+                                document.getElementById("mainselect").checked = false;
+                            }
+                        }
+                    }
+
+                    function checkAny(type) {
+                        var checkboxes = document.getElementsByTagName('input');
+                        if (type == "Checked") {
+                            var ischecked = false;
+                            for (var i = 0; i < checkboxes.length; i++) {
+                                if (checkboxes[i].type == 'checkbox') {
+                                    if (checkboxes[i].checked == true) {
+                                        ischecked = true;
+                                    }
+                                }
+                            }
+                            return ischecked;
+                        } else if (type == "Unchecked") {
+                            var unchecked = false;
+                            for (var i = 0; i < checkboxes.length; i++) {
+                                if (checkboxes[i].type == 'checkbox') {
+                                    if (checkboxes[i].checked == false) {
+                                        unchecked = true;
+                                    }
+                                }
+                            }
+                            return unchecked;
+                        }
+                    }
+
+                    function checkAll(ele) {
+                        var checkboxes = document.getElementsByTagName('input');
+                        if (ele.checked == true) {
+                            for (var i = 0; i < checkboxes.length; i++) {
+                                if (checkboxes[i].type == 'checkbox' && checkboxes[i].id != "mainselect") {
+                                    checkboxes[i].checked = true;
+                                    terms_changed(checkboxes[i]);
+                                }
+                            }
+                        } else {
+                            for (var i = 0; i < checkboxes.length; i++) {
+                                if (checkboxes[i].type == 'checkbox' && checkboxes[i].id != "mainselect") {
+                                    checkboxes[i].checked = false;
+                                    terms_changed(checkboxes[i]);
+                                }
+                            }
+                        }
+                    }
+
+                    function sendRequest() {
+                        var xhr = new XMLHttpRequest();
+                        var selectedValArray = getSelectValues()
+                        var use_xhr = true;
+
+                        if (arguments[0] === 'Certify') {
+                            var uri = "{{ url_for('redirect_results') }}" + "/certify"
+                        } else if (arguments[0] === "Revoke") {
+                            var uri = "{{ url_for('redirect_results') }}" + "/revoke"
+                        }
+                        if (use_xhr === true) {
+                            var csrf_token = "{{ csrf_token() }}";
+                            xhr.open("POST", uri, true);
+                            xhr.setRequestHeader("X-CSRFToken", csrf_token);
+                            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                            xhr.send("file=" + arguments[1] + "&emails=" + selectedValArray);
+                            xhr.onreadystatechange = function(e) {
+                                if (xhr.readyState === 4) {
+                                    location.reload();
+                                }
+                            }
+                        }
+                    }
+                </script>
                 {% else %}
                 <table style="width: 100%" id="paginate">
                     <thead>
@@ -61,6 +198,7 @@
                             <th style="min-width: 80px;">File in Bin</th>
                             <th>Accessible By</th>
                             <th style="min-width: 150px; width: 150px; max-width: 150px;">Created At</th>
+                            <th style="min-width: 150px; width: 150px; max-width: 150px;">Updated At</th>
                             <th>Functions</th>
                         </tr>
                     </thead>
@@ -72,6 +210,7 @@
                             {% endfor %}
                             <td class="buttons_in_tasks_table" id="tsk_in_tbl_btns">
                                 <form class="task_buttons" action="/results/review/{{result[0]}}" method=post autocomplete="off">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                     <input class="button" type=submit value="Review Access">
                                 </form>
                                 <button class="button" onclick="showForm('{{result[0]}}')">Share File</button>
@@ -83,8 +222,11 @@
                 <div id="add_user_form_div" style="display: none;">
                     <form id="add_user_form" action="" method=post autocomplete="off">
                         <dl>
-                            <dd>
+                            <dd class="share_input">
                                 <button type="button" class="button" onclick="hideForm()" id="collapse">× Close</button>
+                            </dd>
+                            <dd class="nopadding">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                             </dd>
                             <dd>
                                 <input class="field_textarea" name=email placeholder="* Email Address Identity" value="">
@@ -113,11 +255,28 @@
                                     <option value="anyone">Anyone</option>
                                 </select>
                             </dd>
+                            <dd class="share_input">
+                                <input style="display: inline-block;" class="button" id="sharesubmit" name="finishtask" type=submit value="">
+                            </dd>
                         </dl>
-                        <input style="display: inline-block;" class="button" id="sharesubmit" name="finishtask" type=submit value="">
                     </form>
                 </div>
                 <script type="text/javascript">
+                    var myVar;
+
+                    function myFunction() {
+                        myVar = setTimeout(showPage, 1000);
+                    }
+
+                    function showPage() {
+                        document.getElementById("loader").style.display = "none";
+                        document.getElementById("loader-message").style.display = "none";
+                        document.getElementById("paginate").style.display = null;
+                        document.getElementById("fc").style.display = null;
+                        document.getElementsByTagName("INPUT")[0].placeholder='Search';
+                        document.getElementsByTagName("INPUT")[0].className='js_search';
+                    }
+
                     function showForm(result) {
                         document.getElementById("add_user_form").action = "/results/create/" + result;
                         document.getElementById("sharesubmit").value = "Share " + result;
@@ -132,22 +291,6 @@
                 </script>
                 {% endif %}
             </div>
-            <script type="text/javascript">
-            var myVar;
-
-            function myFunction() {
-              myVar = setTimeout(showPage, 1000);
-            }
-
-            function showPage() {
-                document.getElementById("loader").style.display = "none";
-                document.getElementById("loader-message").style.display = "none";
-                document.getElementById("paginate").style.display = null;
-                document.getElementById("fc").style.display = null;
-                document.getElementsByTagName("INPUT")[0].placeholder='Search';
-                document.getElementsByTagName("INPUT")[0].className='js_search';
-            }
-            </script>
         </main>
     {% endblock %}
     </body>

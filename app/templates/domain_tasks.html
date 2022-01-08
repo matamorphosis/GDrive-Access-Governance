@@ -6,111 +6,113 @@
         <meta name="description" content="Google Drive Access Governance Domain Tasks.">
         <link rel="icon" href="{{ url_for('static', filename='icons/main.ico') }}" />
         <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/main.ico') }}" />
-		<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"/>
+        <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"/>
         <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.4.1.min.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='js/datatables.min.js') }}"></script>
-        <script type="text/javascript" src="{{ url_for('static', filename='js/main.js') }}"></script>
         <title>Google Drive Access Governance Domain Tasks</title>
     </head>
     <body onload="myFunction()">
-	    {% extends "template.html" %}
+        {% extends "template.html" %}
         {% block content %}
         {% if newtask %}
         <div class="field-container">
-			<div id="outer_form_div">
-				<div class="form_div" style="padding: 0px;">
-					<p class="form_title">Create Domain Task</p>
-					<div id="form_loader">&nbsp;</div>
-					<noscript>
-					   <p class="message">Please enable JavaScript to render this page. Otherwise it won't load.</p>
-					</noscript>
-					<div class="inner_form_div">
-						<form class="form_prv" action="{{ url_for('domain_tasks') }}" method=get autocomplete="off">
-							<input style="display: inline-block;" class="button_prv" name="return" type=submit value="< Return to Tasks">
-						</form>
-						<form class="form" action="{{ url_for('new_domain_task') }}" method=post autocomplete="off">
-							<dl>
-								<dd>
-									<p class="form_message"><strong>Info:</strong>&nbsp;The first three fields are mandatory, the last two are optional but if included please fill out both.</p>
-								</dd>
-								<dd>
-									<input class="field_textarea" name=task_name placeholder="* Task Name" value="">
-								</dd>
-								<dd>
-									<textarea name="task_domains" rows="10" cols="30" placeholder="* Enter domain(s) here, seperated by a new line."></textarea>
-								</dd>
-								<dd class="label_dd">
-									<label>Do you want the supplied domains flagged if found or all other domains?</label>
-								</dd>
-								<dd class="post_label">
-									<select class="bool_form" name="domainoptions" size="2">
-										<option value="True">Flag Other Domains</option>
-										<option value="False">Flag Supplied Domains</option>
-									</select>
-								</dd>
-								<dd id="auto_label">
-									<label>Auto-Certify Access for Flagged Users?:&nbsp;</label>
-									<input onclick="autolabel(this, 'revoke')" type=checkbox id="certify-box" name=certify>
-								</dd>
-								<dd id="auto_label">
-									<label>Auto-Revoke Access for Flagged Users?:&nbsp;</label>
-									<input onclick="autolabel(this, 'certify')" type=checkbox id="revoke-box" name=revoke>
-								</dd>
-								<dd onclick="show_label()">
-									<textarea name="task_directories" rows="10" cols="30" placeholder="Enter directories here, seperated by a new line."></textarea>
-								</dd>
-								<dd style="display: none;" id="second_label" class="label_dd">
-									<label>Should the search be confined to the directories supplied or avoid searching within them?</label>
-								</dd>
-								<dd id="second_options">
-									<select id="bottom_bool_form" name="diroptions" size="2">
-										<option value="True">Confine Search to Supplied Directories</option>
-										<option value="False">Search should Avoid Supplied Directories</option>
-									</select>
-								</dd>
-								<dd id="fin_input">
-									<input style="display: inline-block;" class="button" name="finishtask" onclick="ShowLoader()" type=submit value="Create Task">
-								</dd>
-							</dl>
-						</form>
-						<script type="text/javascript">
-							function show_label() {
-								document.getElementById("second_label").style.display = "block";
-								document.getElementById("bottom_bool_form").className='bool_form';
-								document.getElementById("second_options").className='post_label';
-							}
+            <div id="outer_form_div">
+                <div class="form_div" style="padding: 0px;">
+                    <p class="form_title">Create Domain Task</p>
+                    <div id="form_loader">&nbsp;</div>
+                    <noscript>
+                       <p class="message">Please enable JavaScript to render this page. Otherwise it won't load.</p>
+                    </noscript>
+                    <div class="inner_form_div">
+                        <form class="form_prv" action="{{ url_for('domain_tasks') }}" method=get autocomplete="off">
+                            <input style="display: inline-block;" class="button_prv" name="return" type=submit value="< Return to Tasks">
+                        </form>
+                        <form class="form" action="{{ url_for('new_domain_task') }}" method=post autocomplete="off">
+                            <dl>
+                                <dd>
+                                    <p class="form_message"><strong>Info:</strong>&nbsp;The first three fields are mandatory, the last two are optional but if included please fill out both.</p>
+                                </dd>
+                                <dd class="nopadding">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                </dd>
+                                <dd>
+                                    <input class="field_textarea" name=task_name placeholder="* Task Name" value="">
+                                </dd>
+                                <dd>
+                                    <textarea name="task_domains" rows="10" cols="30" placeholder="* Enter domain(s) here, seperated by a new line."></textarea>
+                                </dd>
+                                <dd class="label_dd">
+                                    <label>Do you want the supplied domains flagged if found or all other domains?</label>
+                                </dd>
+                                <dd class="post_label">
+                                    <select class="bool_form" name="domainoptions" size="2">
+                                        <option value="True">Flag Other Domains</option>
+                                        <option value="False">Flag Supplied Domains</option>
+                                    </select>
+                                </dd>
+                                <dd id="auto_label">
+                                    <label>Auto-Certify Access for Flagged Users?:&nbsp;</label>
+                                    <input onclick="autolabel(this, 'revoke')" type=checkbox id="certify-box" name=certify>
+                                </dd>
+                                <dd id="auto_label">
+                                    <label>Auto-Revoke Access for Flagged Users?:&nbsp;</label>
+                                    <input onclick="autolabel(this, 'certify')" type=checkbox id="revoke-box" name=revoke>
+                                </dd>
+                                <dd onclick="show_label()">
+                                    <textarea name="task_directories" rows="10" cols="30" placeholder="Enter directories here, seperated by a new line."></textarea>
+                                </dd>
+                                <dd style="display: none;" id="second_label" class="label_dd">
+                                    <label>Should the search be confined to the directories supplied or avoid searching within them?</label>
+                                </dd>
+                                <dd id="second_options">
+                                    <select id="bottom_bool_form" name="diroptions" size="2">
+                                        <option value="True">Confine Search to Supplied Directories</option>
+                                        <option value="False">Search should Avoid Supplied Directories</option>
+                                    </select>
+                                </dd>
+                                <dd id="fin_input">
+                                    <input style="display: inline-block;" class="button" name="finishtask" onclick="ShowLoader()" type=submit value="Create Task">
+                                </dd>
+                            </dl>
+                        </form>
+                        <script type="text/javascript">
+                            function show_label() {
+                                document.getElementById("second_label").style.display = "block";
+                                document.getElementById("bottom_bool_form").className='bool_form';
+                                document.getElementById("second_options").className='post_label';
+                            }
 
-							function autolabel(element1, element2) {
-								if(arguments[0].checked === true) {
-									if (arguments[1] === "revoke-box"){
-										var resp = confirm('Selecting this option will automatically certify access rights of flagged users. You can always manually certify rights for each discovered result later. Are you sure you want to use this option?');
-										if (resp == false) {
-											arguments[0].checked = false;
-											return false;
-										}
-									} else if (arguments[1] === "certify-box") {
-										var resp = confirm('Selecting this option will automatically revoke access rights of flagged users. You can always manually revoke rights for each discovered result later. Are you sure you want to use this option?');
-										if (resp == false) {
-											arguments[0].checked = false;
-											return false;
-										}
-									}
-									document.getElementById(arguments[1]).disabled = true;
-								} else {
-									document.getElementById(arguments[1]).disabled = false;
-								}
-							}
-							
-							function ShowLoader() {
-							   document.getElementById("form_loader").style.display = "block";
-							   setTimeout(HideLoader, 3000);
-							}
-							
-							function HideLoader() {
-							   document.getElementById("form_loader").style.display = "none";
-							}
-						</script>
-					</div>
+                            function autolabel(element1, element2) {
+                                if(arguments[0].checked === true) {
+                                    if (arguments[1] === "revoke-box"){
+                                        var resp = confirm('Selecting this option will automatically certify access rights of flagged users. You can always manually certify rights for each discovered result later. Are you sure you want to use this option?');
+                                        if (resp == false) {
+                                            arguments[0].checked = false;
+                                            return false;
+                                        }
+                                    } else if (arguments[1] === "certify-box") {
+                                        var resp = confirm('Selecting this option will automatically revoke access rights of flagged users. You can always manually revoke rights for each discovered result later. Are you sure you want to use this option?');
+                                        if (resp == false) {
+                                            arguments[0].checked = false;
+                                            return false;
+                                        }
+                                    }
+                                    document.getElementById(arguments[1]).disabled = true;
+                                } else {
+                                    document.getElementById(arguments[1]).disabled = false;
+                                }
+                            }
+                            
+                            function ShowLoader() {
+                               document.getElementById("form_loader").style.display = "block";
+                               setTimeout(HideLoader, 3000);
+                            }
+                            
+                            function HideLoader() {
+                               document.getElementById("form_loader").style.display = "none";
+                            }
+                        </script>
+                    </div>
                 </div>
             </div>
         </div>
@@ -120,11 +122,18 @@
             <p class="message">Please enable JavaScript to render this page. Otherwise it won't load.</p>
         </noscript>
         <p id="loader-message" class="loaderabout">Loading Domain Tasks...</p>
-        <div style="display: none;" style="margin:0;" id="fc" class="field-container">
+        <div id="outerleftpop" class="left_pop_out_outer" style="display: none;"><div class="left_pop_out_mid"><div id="arrow" class="left_pop_out_inner"><p id="functions">&nbsp;</p></div><div id="innerleftpop" class="left_pop_out_inner_lower" style="height: 100%;">
+            <div><p class="left_title_top">Task Management</p><br />
+                <a id="createtask" onclick="sendRequest('Create')" class="left_button">Create New Domain Task</a>
+                <a id="bottom_delete_button" class="left_button-disabled" onclick="return confirm('Are you sure you want to delete the following tasks: ' + getSelectValues() + '?') && sendRequest('Delete');" disabled="true">Delete</a>
+            </div>
+        </div></div></div>
+        <div style="display: none;" style="margin:0;" id="fc" class="field-container-settings">
             <table id="paginate">
                 <thead>
                     <tr>
                         <th style="min-width: 40px;">ID</th>
+                        <th id="checkboxtd"><input type="checkbox" onclick="checkAll(this)" id="mainselect" name="taskchkbox"></th>
                         <th>Name</th>
                         <th>Domains</th>
                         <th>Permitted</th>
@@ -138,6 +147,7 @@
                     {% for Task in Tasks %}
                     <tr>
                         <td class="regulartab" style="min-width: 40px;">{{Task[0]}}</td>
+                        <td id="checkboxtd"><input type="checkbox" onclick="terms_changed(this)" id="select" name="taskchkbox" value="{{Task[0]}}"></td>
                         <td class="regulartab">{{Task[1]}}</td>
                         <td class="regulartab">{{Task[3]}}</td>
                         <td class="regulartab">{{Task[4]}}</td>
@@ -147,45 +157,161 @@
                         <td class="buttons_in_tasks_table" id="tsk_in_tbl_btns">
                             {% if Task[2] == "Running" %}
                             <button class="button-running">
-								&nbsp;<i class="fa fa-circle-o-notch fa-spin"></i>&nbsp;
-							</button>
+                                &nbsp;<i class="fa fa-circle-o-notch fa-spin"></i>&nbsp;
+                            </button>
                             {% else %}
                             <form class="task_buttons" action="/tasks/domain/run/{{Task[0]}}" method=post autocomplete="off">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                 <input class="button-run" type=submit value="Run">
                             </form>
                             {% endif %}
-                            <form class="task_buttons" action="/tasks/domain/delete/{{Task[0]}}" method=post autocomplete="off">
-                                <input onclick="return confirm('Are you sure you want to delete task item {{Task[0]}}?');" class="button-red" type=submit value="Delete">
-                            </form>
                         </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
-            <br />
-            <div id="bottom-form">
-                <form action="/tasks/domain/new" method=post autocomplete="off">
-                    <input name="newtask" class="button" type=submit value="New Domain Task">
-                </form>
-            </div>
             <script type="text/javascript">
-            var myVar;
+                var height = 0.7 * screen.height;
+                height = height.toString() + "px";
+                $(document).ready(function(){
+                    $('#paginate').DataTable({
+                    "scrollY": height,
+                    "scrollCollapse": true,
+                    "paging": true,
+                    "pageLength": 25,
+                    "autoWidth": true,
+                    columns: [
+                        null,
+                        { orderable: false },
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        { orderable: false }
+                    ]
+                    });
+                    $('.dataTables_length').addClass('bs-select');
+                });
+                
+                var myVar;
 
-            function myFunction() {
-              myVar = setTimeout(showPage, 1000);
-            }
+                function myFunction() {
+                    myVar = setTimeout(showPage, 1000);
+                }
 
-            function showPage() {
-                document.getElementById("loader").style.display = "none";
-                document.getElementById("loader-message").style.display = "none";
-                document.getElementById("paginate").style.display = null;
-                document.getElementById("fc").style.display = null;
-                document.getElementsByTagName("INPUT")[0].placeholder='Search';
-                document.getElementsByTagName("INPUT")[0].className='js_search';
-            }
+                function showPage() {
+                    document.getElementById("loader").style.display = "none";
+                    document.getElementById("loader-message").style.display = "none";
+                    document.getElementById("paginate").style.display = null;
+                    document.getElementById("outerleftpop").style.display = null;
+                    document.getElementById("fc").style.display = null;
+                    document.getElementsByTagName("INPUT")[0].placeholder='Search';
+                    document.getElementsByTagName("INPUT")[0].className='js_search';
+                    var table = $('#paginate').DataTable();
+                    table.columns.adjust().draw();
+                }
+
+                function getSelectValues() {
+                    var checkedArray = []
+                    document.querySelectorAll('#select:checked').forEach(e => {
+                        checkedArray.push(e.value);
+                    });
+                    checkedArrayStr = checkedArray.toString();
+                    return checkedArrayStr
+                }
+
+                function terms_changed(termsCheckBox){
+                    var buttons = [["bottom_delete_button", "Delete"]]
+                    if (termsCheckBox.checked) {
+                        buttons.forEach(button => {
+                            document.getElementById(button[0]).className = "left_button";
+                            document.getElementById(button[0]).disabled = false;
+                        });
+                        document.getElementById("mainselect").checked = true;
+                    } else {
+                        if($('#select:checked').length === 0) {
+                            buttons.forEach(button => {
+                                document.getElementById(button[0]).disabled = true;
+                                document.getElementById(button[0]).className = "left_button-disabled";
+                            });
+                            document.getElementById("mainselect").checked = false;
+                        }
+                    }
+                }
+
+                function checkAny(type) {
+                    var checkboxes = document.getElementsByTagName('input');
+                    if (type == "Checked") {
+                        var ischecked = false;
+                        for (var i = 0; i < checkboxes.length; i++) {
+                            if (checkboxes[i].type == 'checkbox') {
+                                if (checkboxes[i].checked == true) {
+                                    ischecked = true;
+                                }
+                            }
+                        }
+                        return ischecked;
+                    } else if (type == "Unchecked") {
+                        var unchecked = false;
+                        for (var i = 0; i < checkboxes.length; i++) {
+                            if (checkboxes[i].type == 'checkbox') {
+                                if (checkboxes[i].checked == false) {
+                                    unchecked = true;
+                                }
+                            }
+                        }
+                        return unchecked;
+                    }
+                }
+
+                function checkAll(ele) {
+                    var checkboxes = document.getElementsByTagName('input');
+                    if (ele.checked == true) {
+                        for (var i = 0; i < checkboxes.length; i++) {
+                            if (checkboxes[i].type == 'checkbox' && checkboxes[i].id != "mainselect") {
+                                checkboxes[i].checked = true;
+                                terms_changed(checkboxes[i]);
+                            }
+                        }
+                    } else {
+                        for (var i = 0; i < checkboxes.length; i++) {
+                            if (checkboxes[i].type == 'checkbox' && checkboxes[i].id != "mainselect") {
+                                checkboxes[i].checked = false;
+                                terms_changed(checkboxes[i]);
+                            }
+                        }
+                    }
+                }
+
+                function sendRequest() {
+                    var xhr = new XMLHttpRequest();
+                    var selectedValArray = getSelectValues()
+                    var use_xhr = true;
+
+                    if (arguments[0] === 'Delete') {
+                        var uri = "{{ url_for('domain_tasks') }}" + "/delete/" + selectedValArray
+                    } else if (arguments[0] === "Create") {
+                        var uri = "{{ url_for('new_domain_task') }}";
+                        window.location.assign(uri);
+                        use_xhr = false;
+                    }
+                    if (use_xhr === true) {
+                        var csrf_token = "{{ csrf_token() }}";
+                        xhr.open("POST", uri, true);
+                        xhr.setRequestHeader("X-CSRFToken", csrf_token);
+                        xhr.send();
+                        xhr.onreadystatechange = function(e) {
+                            if (xhr.readyState === 4) {
+                                location.reload();
+                            }
+                        }
+                    }
+                }
             </script>
         </div>
         {% endif %}
-    	{% endblock %}
+        {% endblock %}
     </body>
 </html>

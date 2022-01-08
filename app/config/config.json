@@ -2,6 +2,8 @@
     "web-app": {
         "debug": false,
         "host": "0.0.0.0",
-        "port": 5000
+        "port": 5000,
+        "certificate_file": "../certs/certificate.crt",
+        "key_file": "../certs/privateKey.key"
     }
 }

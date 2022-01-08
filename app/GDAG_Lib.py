@@ -13,7 +13,7 @@ Scope = ['https://www.googleapis.com/auth/drive.metadata.readonly', 'https://www
 def Database_Output(DB_Filename, Output_Data, **kwargs):
     File_ID = Output_Data["File_ID"]
     File_Name = Output_Data["File_Name"]
-    Created = str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+    Updated = str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
     DB_Conn = sqlite3.connect(DB_Filename)
     DB_Cur = DB_Conn.cursor()
     DB_Cur.execute(f"""SELECT emails FROM open_results WHERE id = '{File_ID}' and file_name = '{File_Name}';""")
@@ -25,7 +25,7 @@ def Database_Output(DB_Filename, Output_Data, **kwargs):
 
         if not Open_Results and not Cert_Results:
             Emails = ", ".join(Output_Data["Emails"])
-            DB_Conn.executescript(f"""INSERT INTO open_results (id, file_name, trashed, emails, created_at) values ('{Output_Data["File_ID"]}', '{Output_Data["File_Name"]}', '{Output_Data["Trashed"]}', '{Emails}', '{Created}');""")
+            DB_Conn.executescript(f"""INSERT INTO open_results (id, file_name, trashed, emails, created_at, updated_at) values ('{Output_Data["File_ID"]}', '{Output_Data["File_Name"]}', '{Output_Data["Trashed"]}', '{Emails}', '{Updated}', '{Updated}');""")
 
         elif not Open_Results and Cert_Results:
             Emails_to_Output = []
@@ -38,7 +38,7 @@ def Database_Output(DB_Filename, Output_Data, **kwargs):
 
             if Emails_to_Output != []:
                 Emails_to_Output = ", ".join(Emails_to_Output)
-                DB_Conn.executescript(f"""INSERT INTO open_results (id, file_name, trashed, emails, created_at) values ('{Output_Data["File_ID"]}', '{Output_Data["File_Name"]}', '{Output_Data["Trashed"]}', '{Emails_to_Output}', '{Created}');""")
+                DB_Conn.executescript(f"""INSERT INTO open_results (id, file_name, trashed, emails, created_at, updated_at) values ('{Output_Data["File_ID"]}', '{Output_Data["File_Name"]}', '{Output_Data["Trashed"]}', '{Emails_to_Output}', '{Updated}', '{Updated});""")
 
         elif Open_Results and not Cert_Results:
             Original_Emails = Open_Results[0].split(", ")
@@ -51,7 +51,7 @@ def Database_Output(DB_Filename, Output_Data, **kwargs):
 
             if Open_Emails != Original_Emails:
                 Open_Emails = ", ".join(Open_Emails)
-                DB_Conn.executescript(f"""UPDATE open_results SET emails = "{Open_Emails}" WHERE id = "{File_ID}";""")
+                DB_Conn.executescript(f"""UPDATE open_results SET emails = "{Open_Emails}", updated_at = "{Updated}" WHERE id = "{File_ID}";""")
 
         elif Open_Results and Cert_Results:
             Original_Open_Emails = Open_Results[0].split(", ")
@@ -65,13 +65,14 @@ def Database_Output(DB_Filename, Output_Data, **kwargs):
 
             if Open_Emails != Original_Open_Emails:
                 Open_Emails = ", ".join(Open_Emails)
-                DB_Conn.executescript(f"""UPDATE open_results SET emails = "{Open_Emails}" WHERE id = "{File_ID}";""")
+                DB_Conn.executescript(f"""UPDATE open_results SET emails = "{Open_Emails}", updated_at = "{Updated}" WHERE id = "{File_ID}";""")
 
         else:
             DB_Conn.close()
             return
 
     else:
+        Updated = str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
 
         if Open_Results and Cert_Results:
             Original_Cert_Emails = Cert_Results[0].split(", ")
@@ -87,13 +88,13 @@ def Database_Output(DB_Filename, Output_Data, **kwargs):
                     Cert_Emails.append(Email)
 
             if Open_Emails != []:
-                DB_Conn.executescript(f"""UPDATE open_results SET emails = "{Open_Emails}" WHERE id = "{File_ID}";""")
+                DB_Conn.executescript(f"""UPDATE open_results SET emails = "{Open_Emails}", updated_at = "{Updated}" WHERE id = "{File_ID}";""")
 
             elif Open_Emails == []:
                 DB_Conn.executescript(f"""DELETE from open_results where id = "{File_ID}";""")
 
             if Cert_Emails != Original_Cert_Emails:
-                DB_Conn.executescript(f"""UPDATE certified_results SET emails = "{Cert_Emails}" WHERE id = "{File_ID}";""")
+                DB_Conn.executescript(f"""UPDATE certified_results SET emails = "{Cert_Emails}", updated_at = "{Updated}" WHERE id = "{File_ID}";""")
 
         elif Open_Results and not Cert_Results:
             Open_Emails = Open_Results[0].split(", ")
@@ -104,17 +105,17 @@ def Database_Output(DB_Filename, Output_Data, **kwargs):
                     Open_Emails.remove(Email)
 
             if Open_Emails != []:
-                DB_Conn.executescript(f"""UPDATE open_results SET emails = "{Open_Emails}" WHERE id = "{File_ID}";""")
+                DB_Conn.executescript(f"""UPDATE open_results SET emails = "{Open_Emails}", updated_at = "{Updated}" WHERE id = "{File_ID}";""")
 
             elif Open_Emails == []:
                 DB_Conn.executescript(f"""DELETE from open_results where id = "{File_ID}";""")
 
             Emails_to_Output = ", ".join(Output_Data["Emails"])
-            DB_Conn.executescript(f"""INSERT INTO certified_results (id, file_name, trashed, emails, created_at) values ('{Output_Data["File_ID"]}', '{Output_Data["File_Name"]}', '{Output_Data["Trashed"]}', '{Emails_to_Output}', '{Created}');""")
+            DB_Conn.executescript(f"""INSERT INTO certified_results (id, file_name, trashed, emails, created_at, updated_at) values ('{Output_Data["File_ID"]}', '{Output_Data["File_Name"]}', '{Output_Data["Trashed"]}', '{Emails_to_Output}', '{Updated}', '{Updated}');""")
 
         elif not Open_Results and not Cert_Results:
             Emails_to_Output = ", ".join(Output_Data["Emails"])
-            DB_Conn.executescript(f"""INSERT INTO certified_results (id, file_name, trashed, emails, created_at) values ('{Output_Data["File_ID"]}', '{Output_Data["File_Name"]}', '{Output_Data["Trashed"]}', '{Emails_to_Output}', '{Created}');""")
+            DB_Conn.executescript(f"""INSERT INTO certified_results (id, file_name, trashed, emails, created_at, updated_at) values ('{Output_Data["File_ID"]}', '{Output_Data["File_Name"]}', '{Output_Data["Trashed"]}', '{Emails_to_Output}', '{Updated}', '{Updated}');""")
 
         else:
             DB_Conn.close()
@@ -446,7 +447,8 @@ class Main:
                             Open_Emails.remove(Permission_Email)
 
                         if Open_Emails != []:
-                            DB_Conn.executescript(f"""UPDATE open_results SET emails = "{Open_Emails}" WHERE id = "{File_ID}";""")
+                            Updated = str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+                            DB_Conn.executescript(f"""UPDATE open_results SET emails = "{Open_Emails}", updated_at = "{Updated}" WHERE id = "{File_ID}";""")
 
                         elif Open_Emails == []:
                             DB_Conn.executescript(f"""DELETE from open_results where id = "{File_ID}";""")

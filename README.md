@@ -87,7 +87,12 @@ Below there is an example of the output that can be expected. The names and emai
 # List of Current Monthly Sponsors
 [Endure Secure Pty Ltd](https://endsec.com.au/)
 <p align="left">
-  <img width="231" height="72" src="https://github.com/matamorphosis/Scrummage/blob/master/installation/images_dark_theme/Sponsor_Endure_Secure.png">
+  <img width="231" height="72" src="./installation/images/Sponsor_Endure_Secure.png">
+</p>
+
+[Tines](https://www.tines.com/?utm_source=oss&utm_medium=sponsorship&utm_campaign=matamorphosis)
+<p align="left">
+  <img width="200" height="72" src="./installation/images/Tines-Sponsorship-Badge-Purple.png">
 </p>
 
 ## Become a Sponsor Now!

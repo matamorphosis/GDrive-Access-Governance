@@ -25,7 +25,8 @@ create table open_results (
     file_name    text not null,
     trashed      text not null,
     emails       text not null,
-    created_at   date text not null
+    created_at   date text not null,
+    updated_at   date text not null
 );
 
 create table certified_results (
@@ -33,5 +34,6 @@ create table certified_results (
     file_name    text not null,
     trashed      text not null,
     emails       text not null,
-    created_at   date text not null
+    created_at   date text not null,
+    updated_at   date text not null
 );
