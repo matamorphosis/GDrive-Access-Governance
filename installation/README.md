@@ -17,14 +17,13 @@ The application itself allows anyone to use it, but you will have to authenticat
 ```console
 user@linux:~$ git clone https://github.com/matamorphosis/GDrive-Access-Governance && cd GDrive-Access-Governance/installation
 ```
-3. Install python requirements using the requirements.txt file in the directory:
+3. Run the installation script:
 ```console
-user@linux:~/Path/to/GDrive-Access-Governance/installation/$ pip3 install -r requirements.txt
+user@linux:~/Path/to/GDrive-Access-Governance/installation/$ sudo bash ./install.sh
 ```
 4. You will need a `credentials.json` file. To obtain this file, log into your Google Account and navigate to the [Python Google Drive API Page here](https://developers.google.com/drive/api/v3/quickstart/python), then click the blue button called "Enable the Drive API". A pop-up box should come up and there will be another blue button called "DOWNLOAD CLIENT CONFIGURATION". Click this button to download your credentials.json file and then copy it to the following directories in your GDrive-Access-Governance directory.  
-```
+```console
 ~/Path/to/GDrive-Access-Governance/app/config
-~/Path/to/GDrive-Access-Governance/bin/config
 ~/Path/to/GDrive-Access-Governance/scripts
 ```
 5. If not done already, ensure you have the Google Drive API enabled by navigating to the settings [here](https://console.developers.google.com/apis/api/drive.googleapis.com/overview).
