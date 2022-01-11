@@ -3,7 +3,7 @@ name: publish
 on: [push]
 
 jobs:
-  publish-scrummage-image:
+  publish-gdag-image:
     runs-on: ubuntu-latest
 
     steps:
@@ -12,7 +12,7 @@ jobs:
     - name: Build the Scrummage Docker image
       run: |
         echo $CR_PAT | docker login ghcr.io -u matamorphosis --password-stdin
-        docker build . --tag ghcr.io/matamorphosis/scrummage:latest
-        docker push ghcr.io/matamorphosis/scrummage:latest
+        docker build . --tag ghcr.io/matamorphosis/gdag:latest
+        docker push ghcr.io/matamorphosis/gdag:latest
       env:
         CR_PAT: ${{ secrets.CR_PAT }}
