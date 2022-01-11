@@ -1,10 +1,12 @@
 #!/usr/bin/python3
 import os, re, pathlib, sys, logging, datetime, json, sqlite3, threading, time, dateutil.parser, Certified_Results_Checker
+from werkzeug.utils import secure_filename
 from flask import Flask, render_template, request, redirect, url_for
 from flask_compress import Compress
 from flask_wtf.csrf import CSRFProtect, CSRFError
 from signal import signal, SIGINT
 from logging.handlers import RotatingFileHandler
+from functools import wraps
 Bad_Characters = ["|", "&", "?", "\\", "\"", "\'", "[", "]", ">", "<", "~", "`", ";", "{", "}", "%", "^", "--", "++", "+", "'", "(", ")", "*", "="]
 
 if __name__ == "__main__":
@@ -36,6 +38,8 @@ if __name__ == "__main__":
                 SESSION_COOKIE_SECURE=True,
                 SESSION_COOKIE_HTTPONLY=True,
                 SESSION_COOKIE_SAMESITE='Strict',
+                UPLOAD_FOLDER=os.path.join(GDAG_Working_Directory, "config"),
+                MAX_CONTENT_PATH=1000,
             )
             app.permanent_session_lifetime = datetime.timedelta(minutes=5)
 
@@ -115,28 +119,27 @@ if __name__ == "__main__":
                 Thread_0 = threading.Thread(target=self.Controller, args=("Running",))
                 Thread_0.start()
                 Thread_0.join()
-
                 Permitted = Result[4]
                 Directories = Result[6]
                 Included = Result[7]
 
                 if Directories and str(Included) == "True" and str(Permitted) == "True":
-                    Thread_1 = threading.Thread(target=Google_Drive.Governance_Check, args=(Page_Size,), kwargs={f"permitted_{self.task_type.lower()}": Result[3].split(", "), "Auto Function": Result[5],"Included_Directories": Directories.split(", "),})
+                    Thread_1 = threading.Thread(target=Google_Drive.Governance_Check, args=(Page_Size,), kwargs={f"permitted_{self.task_type.lower()}": Result[3].split(", "), "Auto_Function": Result[5],"Included_Directories": Directories.split(", "),})
 
                 elif Directories and str(Included) == "False" and str(Permitted) == "True":
-                    Thread_1 = threading.Thread(target=Google_Drive.Governance_Check, args=(Page_Size,), kwargs={f"permitted_{self.task_type.lower()}": Result[3].split(", "), "Auto Function": Result[5], "Excluded_Directories": Directories.split(", "),})
+                    Thread_1 = threading.Thread(target=Google_Drive.Governance_Check, args=(Page_Size,), kwargs={f"permitted_{self.task_type.lower()}": Result[3].split(", "), "Auto_Function": Result[5], "Excluded_Directories": Directories.split(", "),})
 
                 elif Directories and str(Included) == "True" and str(Permitted) == "False":
-                    Thread_1 = threading.Thread(target=Google_Drive.Governance_Check, args=(Page_Size,), kwargs={f"non_permitted_{self.task_type.lower()}": Result[3].split(", "), "Auto Function": Result[5], "Included_Directories": Directories.split(", "),})
+                    Thread_1 = threading.Thread(target=Google_Drive.Governance_Check, args=(Page_Size,), kwargs={f"non_permitted_{self.task_type.lower()}": Result[3].split(", "), "Auto_Function": Result[5], "Included_Directories": Directories.split(", "),})
 
                 elif Directories and str(Included) == "False" and str(Permitted) == "False":
-                    Thread_1 = threading.Thread(target=Google_Drive.Governance_Check, args=(Page_Size,), kwargs={f"non_permitted_{self.task_type.lower()}": Result[3].split(", "), "Auto Function": Result[5], "Excluded_Directories": Directories.split(", "),})
+                    Thread_1 = threading.Thread(target=Google_Drive.Governance_Check, args=(Page_Size,), kwargs={f"non_permitted_{self.task_type.lower()}": Result[3].split(", "), "Auto_Function": Result[5], "Excluded_Directories": Directories.split(", "),})
 
                 elif not Directories and str(Permitted) == "True":
-                    Thread_1 = threading.Thread(target=Google_Drive.Governance_Check, args=(Page_Size,), kwargs={f"permitted_{self.task_type.lower()}": Result[3].split(", "), "Auto Function": Result[5],})
+                    Thread_1 = threading.Thread(target=Google_Drive.Governance_Check, args=(Page_Size,), kwargs={f"permitted_{self.task_type.lower()}": Result[3].split(", "), "Auto_Function": Result[5],})
 
                 elif not Directories and str(Permitted) == "False":
-                    Thread_1 = threading.Thread(target=Google_Drive.Governance_Check, args=(Page_Size,), kwargs={f"non_permitted_{self.task_type.lower()}": Result[3].split(", "), "Auto Function": Result[5],})
+                    Thread_1 = threading.Thread(target=Google_Drive.Governance_Check, args=(Page_Size,), kwargs={f"non_permitted_{self.task_type.lower()}": Result[3].split(", "), "Auto_Function": Result[5],})
 
                 Thread_1.start()
                 Thread_1.join()
@@ -232,7 +235,74 @@ if __name__ == "__main__":
         app.register_error_handler(404, page_not_found)
         app.register_error_handler(405, method_not_allowed)
 
+        def upload_requirement(f):
+
+            try:
+                @wraps(f)
+                def wrap(*args, **kwargs):
+
+                    if os.path.exists(os.path.join(app.config['UPLOAD_FOLDER'], "credentials.json")):
+                        return f(*args, **kwargs)
+
+                    else:
+                        return redirect(url_for('upload'))
+
+                return wrap
+
+            except Exception as e:
+                app.logger.error(e)
+
+        def upload_ignore(f):
+
+            try:
+                @wraps(f)
+                def wrap(*args, **kwargs):
+
+                    if not os.path.exists(os.path.join(app.config['UPLOAD_FOLDER'], "credentials.json")):
+                        return f(*args, **kwargs)
+
+                    else:
+                        return redirect(url_for('index'))
+
+                return wrap
+
+            except Exception as e:
+                app.logger.error(e)
+
+        @app.route('/upload', methods=['GET', 'POST'])
+        @upload_ignore
+        def upload():
+
+            try:
+
+                if request.method == "POST":
+                    f = request.files['file']
+                    Contents = {}
+                    Required_Keys = ['client_id', 'project_id', 'auth_uri', 'token_uri', 'auth_provider_x509_cert_url', 'client_secret', 'redirect_uris']
+
+                    try:
+                        Contents = json.load(f)
+
+                    except:
+                        return render_template('upload.html')
+
+                    if Contents.get("installed") and all(Key in Contents["installed"].keys() for Key in Required_Keys) and f.filename == "credentials.json":
+                        file = secure_filename(f.filename)
+                        f.stream.seek(0)
+                        f.save(os.path.join(app.config['UPLOAD_FOLDER'], file))
+
+                    time.sleep(1)
+                    return redirect(url_for('index'))
+
+                else:
+                    return render_template('upload.html')
+
+            except Exception as e:
+                app.logger.error(e)
+                return render_template('bad_request.html'), 400
+
         @app.route('/')
+        @upload_requirement
         def index():
 
             try:
@@ -282,8 +352,10 @@ if __name__ == "__main__":
 
             except Exception as e:
                 app.logger.error(e)
+                return render_template('bad_request.html'), 400
 
         @app.route('/tasks/email', methods=['GET'])
+        @upload_requirement
         def email_tasks():
 
             try:
@@ -299,6 +371,7 @@ if __name__ == "__main__":
                 return redirect(url_for('index'))
 
         @app.route('/tasks/domain', methods=['GET'])
+        @upload_requirement
         def domain_tasks():
 
             try:
@@ -314,6 +387,7 @@ if __name__ == "__main__":
                 return redirect(url_for('index'))
 
         @app.route('/tasks/email/new', methods=['GET', 'POST'])
+        @upload_requirement
         def new_email_task():
 
             try:
@@ -388,6 +462,7 @@ if __name__ == "__main__":
                 return redirect(url_for('email_tasks'))
 
         @app.route('/tasks/domain/new', methods=['GET', 'POST'])
+        @upload_requirement
         def new_domain_task():
 
             try:
@@ -456,6 +531,7 @@ if __name__ == "__main__":
                 return redirect(url_for('domain_tasks'))
 
         @app.route('/tasks/email/delete/<taskid>', methods=['POST'])
+        @upload_requirement
         def email_task_delete(taskid):
 
             try:
@@ -483,6 +559,7 @@ if __name__ == "__main__":
                 return redirect(url_for('email_tasks'))
 
         @app.route('/tasks/domain/delete/<taskid>', methods=['POST'])
+        @upload_requirement
         def domain_task_delete(taskid):
 
             try:
@@ -510,13 +587,12 @@ if __name__ == "__main__":
                 return redirect(url_for('domain_tasks'))
 
         @app.route('/tasks/email/run/<taskid>', methods=['POST'])
+        @upload_requirement
         def email_task_run(taskid):
 
             try:
                 taskid = str(int(taskid))
-                New_Task = API_Caller(taskid, "Emails")
-                New_Thread = threading.Thread(target=New_Task.Call_API)
-                New_Thread.start()
+                New_Thread = threading.Thread(target=API_Caller(taskid, "Emails").Call_API).start()
                 time.sleep(1)
                 return redirect(url_for('email_tasks'))
 
@@ -525,21 +601,22 @@ if __name__ == "__main__":
                 return redirect(url_for('email_tasks'))
 
         @app.route('/tasks/domain/run/<taskid>', methods=['POST'])
+        @upload_requirement
         def domain_task_run(taskid):
 
             try:
                 taskid = str(int(taskid))
-                New_Task = API_Caller(taskid, "Domains")
-                New_Thread = threading.Thread(target=New_Task.Call_API)
-                New_Thread.start()
+                New_Thread = threading.Thread(target=API_Caller(taskid, "Domains").Call_API).start()
                 time.sleep(1)
                 return redirect(url_for('domain_tasks'))
 
             except Exception as e:
+                raise e
                 app.logger.error(e)
                 return redirect(url_for('domain_tasks'))
 
         @app.route('/results/open', methods=['GET'])
+        @upload_requirement
         def results():
 
             try:
@@ -555,10 +632,18 @@ if __name__ == "__main__":
                 return redirect(url_for('index'))
 
         @app.route('/results', methods=['GET'])
+        @upload_requirement
         def redirect_results():
-            return redirect(url_for('results'))
+
+            try:
+                return redirect(url_for('results'))
+
+            except Exception as e:
+                app.logger.error(e)
+                return redirect(url_for('index'))
 
         @app.route('/results/certified', methods=['GET'])
+        @upload_requirement
         def results_certified():
 
             try:
@@ -574,6 +659,7 @@ if __name__ == "__main__":
                 return redirect(url_for('results'))
 
         @app.route('/results/review/<resultid>', methods=['GET', 'POST'])
+        @upload_requirement
         def result_review_page(resultid):
 
             try:
@@ -596,6 +682,7 @@ if __name__ == "__main__":
                 return redirect(url_for('results'))
 
         @app.route('/results/revoke', methods=['POST'])
+        @upload_requirement
         def result_revoke():
 
             try:
@@ -662,6 +749,7 @@ if __name__ == "__main__":
                 return redirect(url_for('results'))
 
         @app.route('/results/certify/', methods=['POST'])
+        @upload_requirement
         def result_certify():
 
             try:
@@ -752,6 +840,7 @@ if __name__ == "__main__":
                 return redirect(url_for('results'))
 
         @app.route('/results/create/<resultid>', methods=['POST'])
+        @upload_requirement
         def result_create(resultid):
 
             try:
@@ -838,4 +927,5 @@ if __name__ == "__main__":
             app.run(debug=Application_Details[0], host=Application_Details[1], port=Application_Details[2], threaded=True)
 
     except Exception as e:
+        raise e
         sys.exit(f"[-] {str(e)}.")

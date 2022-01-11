@@ -119,6 +119,10 @@ input {
     border-radius: 2px;
 }
 
+#fileupload {
+    padding: 5px 0px 5px 0px;
+}
+
 textarea {
     -webkit-transition: all 0.30s ease-in-out;
     -moz-transition: all 0.30s ease-in-out;
@@ -1228,6 +1232,67 @@ input[type="search"]:hover::placeholder {
     float: left;
 }
 
+#upload {
+    padding-left: 0px;
+    text-align: left;
+    color: #fff;
+}
+
+.upload_div {
+    padding: 20px;
+}
+
+.upload_outer_div {
+    text-align: center;
+    padding: 25px 0px 0px 0px;
+}
+
+.upload_inner_div {
+    text-align: center;
+    border: 1px solid #303030;
+    border-radius: 5px;
+    display: inline-block;
+    width: 500px;
+    box-shadow: 0px 2px 5px #303030;
+    background-color: #1A1A1A;
+    opacity: 0.94;
+}
+
+#upload_loader {
+    background: repeating-linear-gradient(to right, blue 0%, red 25%, yellow 50%, green 75%, blue 100%);
+    width: 100%;
+    height: 3px;
+    background-size: 200% auto;
+    background-position: 0 100%;
+    animation: gradient 2s infinite;
+    animation-fill-mode: forwards;
+    animation-timing-function: linear;
+    display: none;
+    border-radius: 5px 5px 0px 0px;
+}
+
+#upload_logo {
+    background-image: url("../images/google.png");
+    background-size: 80px;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+#loader_circular_logo_upload {
+    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #fff 0);
+    mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #fff 0);
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    animation: rot 2s linear infinite;
+}
+
+@keyframes rot {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
 .main-nav {
     background-color: #303030;
 }
@@ -1247,6 +1312,11 @@ input[type="search"]:hover::placeholder {
     padding: 15px 0px 0px 0px;
     width: 99%;
     font-size: 12pt;
+}
+
+.message-left {
+    text-align: left;
+    color: #fff;
 }
 
 .form_message {

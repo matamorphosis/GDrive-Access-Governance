@@ -8,6 +8,8 @@ else
 
     pip3 install -r requirements.txt
     mkdir ../certs
+    PRIVATE_KEY="../certs/privateKey.key"
+    CERTIFICATE_CRT="../certs/certificate.crt"
     #Change to your company details
     country=AU
     state=NSW

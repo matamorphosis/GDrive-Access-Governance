@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="SGoogle Drive Access Governance Upload.">
+        <link rel="icon" href="{{ url_for('static', filename='icons/main.ico') }}" />
+        <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/main.ico') }}" />
+        <script type="text/javascript" src="{{ url_for('static', filename='js/chart.js') }}"></script>
+        <title>Google Drive Access Governance Upload</title>
+    </head>
+    <body>
+        {% extends "template.html" %}
+        {% block content %}
+        <main>
+            <div class="upload_outer_div">
+                <div class="upload_inner_div">
+                   <div id="upload_loader">&nbsp;</div>
+                   <noscript>
+                      <p class="message">Please enable JavaScript to render this page. Otherwise it won't load.</p>
+                   </noscript>
+                   <div class="upload_div">
+                      <div style="padding-bottom: 10px;"><div id="upload_logo"><div id="loader_circular_logo_upload"></div></div></div>
+                      <p class="message-left">To continue using this application, please upload your Google Drive-specific, credentials.json file. The uploaded file needs to be titled "credentials.json". For more information, please refer to the <a href="https://github.com/matamorphosis/GDrive-Access-Governance/wiki/Installation">installation guide</a>.</p>
+                      <form class="form" action="{{url_for('upload')}}" method=post  enctype="multipart/form-data" autocomplete="off">
+                         <dl>
+                            <dt>
+                               <dd class="nopadding">
+                                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                               </dd>
+                               <dd id="upload">
+                                  <input id="fileupload" type="file" name="file"/>
+                               </dd>
+                               <dd id="password_box_area">
+                                  <input class="button-run" onclick="ShowLoader()" type=submit value=Upload />
+                               </dd>
+                            </dt>
+                         </dl>
+                      </form>
+                      <script type="text/javascript">
+                         function ShowLoader() {
+                            document.getElementById("upload_loader").style.display = "block";
+                            document.getElementById("loader_circular_logo_upload").style.background = "linear-gradient(blue 0%, red 25%, yellow 50%, green 75%, blue 100%)";
+                            setTimeout(HideLoader, 3000);
+                         }
+                         function HideLoader() {
+                            document.getElementById("upload_loader").style.display = "none";
+                            document.getElementById("loader_circular_logo_upload").style.background = "unset";
+                         }
+                      </script>
+                      {% if error %}
+                         <p class="message"><strong>Error:</strong> {{ error }}</p>
+                      {% endif %}
+                   </div>
+                </div>
+            </div>
+        </main>
+        {% endblock %}
+    </body>
+</html>

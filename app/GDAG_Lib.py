@@ -160,7 +160,7 @@ class Main:
 
         try:
 
-            if Item.get("mimeType") and Item.get("mimeType") != 'application/vnd.google-apps.folder' and Item.get("trashed"):
+            if Item.get("mimeType") and Item.get("mimeType") != 'application/vnd.google-apps.folder':
                 File_Permissions = self.Service.permissions().list(fileId=Item["id"], fields="*").execute()
                 Permission_Details = File_Permissions.get('permissions', [])
                 self.Current_File_ID = ""
@@ -183,7 +183,7 @@ class Main:
                         else:
                             self.Current_Prints["Emails"].append(str(Permission_Detail['emailAddress']))
                             
-                        if self.kwargs["Auto Function"] == "Revoke":
+                        if self.kwargs["Auto_Function"] == "Revoke":
                             self.Auto_Function(Item['id'], Permission_Detail['id'], Permission_Detail['emailAddress'])
                                 
                     except Exception as e:
@@ -218,10 +218,10 @@ class Main:
 
                 if self.Current_Prints != {}:
 
-                    if self.kwargs.get("Auto Function") == "Certify":
+                    if self.kwargs.get("Auto_Function") == "Certify":
                         Database_Output(self.DB_File, self.Current_Prints, Certify=True)
 
-                    elif self.kwargs.get("Auto Function") == "Revoke":
+                    elif self.kwargs.get("Auto_Function") == "Revoke":
                         pass
 
                     else:
@@ -349,6 +349,7 @@ class Main:
                                         print(f'[i] No files found.')
 
                                     else:
+                                        print(True)
                                         print(f'[+] Searching for Potential Access Violations.')
 
                                         with Pool(processes=2) as p:
@@ -423,7 +424,7 @@ class Main:
 
         try:
 
-            if self.kwargs["Auto Function"] == "Revoke":
+            if self.kwargs["Auto_Function"] == "Revoke":
                 DB_Conn = sqlite3.connect(self.DB_File)
                 DB_Cur = DB_Conn.cursor()
                 DB_Cur.execute(f"""SELECT emails FROM open_results WHERE id = '{File_ID}';""")

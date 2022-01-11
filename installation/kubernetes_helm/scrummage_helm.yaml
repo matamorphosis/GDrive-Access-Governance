@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.version: 1.21.0 (992df58d8)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: gdag
+  name: gdag
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: gdag
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.version: 1.21.0 (992df58d8)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: gdag
+    spec:
+      containers:
+      - image: ghcr.io/matamorphosis/gdag:latest
+        imagePullPolicy: ""
+        name: gdag
+        ports:
+        - containerPort: 6000
+        resources: {}
+      restartPolicy: Always
+      serviceAccountName: ""
+      volumes: null
+status: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.version: 1.21.0 (992df58d8)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: gdag
+  name: gdag
+spec:
+  ports:
+  - name: "6000"
+    port: 6000
+    targetPort: 6000
+  selector:
+    io.kompose.service: gdag
+status:
+  loadBalancer: {}
