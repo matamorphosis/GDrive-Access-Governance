@@ -73,7 +73,7 @@ ENV email=GDAG@GDAG.com
 RUN openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -keyout $PRIVATE_KEY -out $CERTIFICATE_CRT -subj "/C=$country/ST=$state/L=$locality/O=$organization/OU=$organizationalunit/CN=$commonname/emailAddress=$email"
 
 #----------------------------------------------------------------------------------------------------
-# Expose TCP port 5000 from container to host, and ensure postgresql is started and start GDAG.
+# Expose TCP port 8000 from container to host, and ensure postgresql is started and start GDAG.
 #----------------------------------------------------------------------------------------------------
 EXPOSE 8000
 RUN chmod +x /GDrive-Access-Governance/installation/docker/start.sh
