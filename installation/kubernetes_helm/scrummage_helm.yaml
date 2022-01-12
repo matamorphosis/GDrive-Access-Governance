@@ -26,7 +26,7 @@ spec:
         imagePullPolicy: ""
         name: gdag
         ports:
-        - containerPort: 6000
+        - containerPort: 8000
         resources: {}
       restartPolicy: Always
       serviceAccountName: ""
@@ -44,9 +44,9 @@ metadata:
   name: gdag
 spec:
   ports:
-  - name: "6000"
-    port: 6000
-    targetPort: 6000
+  - name: "8000"
+    port: 8000
+    targetPort: 8000
   selector:
     io.kompose.service: gdag
 status:

@@ -11,11 +11,11 @@
 
     - name: download and launch a docker web container
       docker_container:
-        name: scrummage
-        image: ghcr.io/matamorphosis/scrummage:latest
+        name: gdag
+        image: ghcr.io/matamorphosis/gdag:latest
         state: started
         restart_policy: always
-        published_ports: 5000:5000
+        published_ports: 8000:8000
 
     - name: Enable docker service
       systemd:

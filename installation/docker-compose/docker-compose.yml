@@ -3,4 +3,4 @@ services:
   web:
     image: ghcr.io/matamorphosis/gdag:latest
     ports:
-      - "6000:6000"
+      - "8000:8000"
