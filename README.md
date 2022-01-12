@@ -54,31 +54,31 @@ There are two kinds of results, open and certified. Initially all discovered res
 ## Script Usage
 There are four options for running this tool:  
 1. Permitted Email Addresses - a text file containing email addresses that are safe. (Will report any files that can be accessed by email addresses that are not in the file.)
-```
+```console
 user@linux:~$ python3 Google_Drive_Governance.py -pe allowed_emails.txt
 ```
 2. Non-Permitted Email Addresses - a text file containing email addresses that are safe. (Will report any files that can be accessed by email addresses that are in the file.)
-```
+```console
 user@linux:~$ python3 Google_Drive_Governance.py -ne risky_emails.txt
 ```
 3. Permitted Domains - a text file containing domains that are safe. (Will report any files that can be accessed by email addresses that do not belong to the domain names in the file.)
-```
+```console
 user@linux:~$ python3 Google_Drive_Governance.py -pe allowed_domains.txt
 ```
 4. Non-Permitted Domains - a text file containing domains that are safe. (Will report any files that can be accessed by email addresses that belong to the domain names in the file.)
-```
+```console
 user@linux:~$ python3 Google_Drive_Governance.py -ne risky_domains.txt
 ```
 5. Excluded Directories - a text file containing directories, or parents in the language of the GSuite API, that the search should omit from searching. 
-```
+```console
 user@linux:~$ python3 Google_Drive_Governance.py -pe allowed_domains.txt -ed directories_to_exclude.txt
 ```
 6. Included Directories - a text file containing directories, or parents in the language of the GSuite API, that the search should restrict its searching to. 
-```
+```console
 user@linux:~$ python3 Google_Drive_Governance.py -pe allowed_domains.txt -id directories_to_include.txt
 ```
 
-Lastly, there is one additional argument -ps or --pagesize. This argument controls the pagination of Google Drive. Each API call can only return a maximum of 1000 results. To thread more lightly you can request 100 items per page. The tool will still search the entire Google Drive, just in smaller chunks. If you don't specify this option it will request 1000 items per page.
+Lastly, there is one additional argument `-ps` or `--pagesize`. This argument controls the pagination of Google Drive. Each API call can only return a maximum of 1000 results. To thread more lightly you can request 100 items per page. The tool will still search the entire Google Drive, just in smaller chunks. If you don't specify this option it will request 1000 items per page.
 
 Below there is an example of the output that can be expected. The names and email addresses have been excluded for privacy purposes.
 
