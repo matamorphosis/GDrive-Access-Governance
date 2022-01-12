@@ -57,11 +57,12 @@ if __name__ == "__main__":
                 with open(Configuration_File) as JSON_File:
                     Configuration_Data = json.load(JSON_File)
 
-                WA_Debug = Configuration_Data['web-app']['debug']
-                WA_Host = Configuration_Data['web-app']['host']
-                WA_Port = Configuration_Data['web-app']['port']
-                WA_Cert = Configuration_Data['web-app']['certificate_file']
-                WA_Key = Configuration_Data['web-app']['key_file']
+                Configuration_Data = Configuration_Data['web-app']
+                WA_Debug = Configuration_Data['debug']
+                WA_Host = Configuration_Data['host']
+                WA_Port = Configuration_Data['port']
+                WA_Cert = Configuration_Data['certificate_file']
+                WA_Key = Configuration_Data['key_file']
 
                 if WA_Host and WA_Port:
                     return [WA_Debug, WA_Host, WA_Port, WA_Cert, WA_Key]
@@ -200,6 +201,16 @@ if __name__ == "__main__":
 
             except Exception as e:
                 app.logger.error(e)
+
+        @app.errorhandler(CSRFError)
+        def handle_csrf_error(e):
+
+            try:
+                return redirect(url_for('index'))
+
+            except Exception as e:
+                app.logger.error(e)
+                return render_template('bad_request.html'), 400
 
         @app.errorhandler(400)
         def bad_request(e):
@@ -592,7 +603,7 @@ if __name__ == "__main__":
 
             try:
                 taskid = str(int(taskid))
-                New_Thread = threading.Thread(target=API_Caller(taskid, "Emails").Call_API).start()
+                threading.Thread(target=API_Caller(taskid, "Emails").Call_API).start()
                 time.sleep(1)
                 return redirect(url_for('email_tasks'))
 
@@ -606,12 +617,11 @@ if __name__ == "__main__":
 
             try:
                 taskid = str(int(taskid))
-                New_Thread = threading.Thread(target=API_Caller(taskid, "Domains").Call_API).start()
+                threading.Thread(target=API_Caller(taskid, "Domains").Call_API).start()
                 time.sleep(1)
                 return redirect(url_for('domain_tasks'))
 
             except Exception as e:
-                raise e
                 app.logger.error(e)
                 return redirect(url_for('domain_tasks'))
 
@@ -927,5 +937,4 @@ if __name__ == "__main__":
             app.run(debug=Application_Details[0], host=Application_Details[1], port=Application_Details[2], threaded=True)
 
     except Exception as e:
-        raise e
         sys.exit(f"[-] {str(e)}.")

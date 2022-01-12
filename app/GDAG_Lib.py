@@ -349,7 +349,6 @@ class Main:
                                         print(f'[i] No files found.')
 
                                     else:
-                                        print(True)
                                         print(f'[+] Searching for Potential Access Violations.')
 
                                         with Pool(processes=2) as p:
