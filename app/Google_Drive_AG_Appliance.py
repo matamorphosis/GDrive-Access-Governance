@@ -493,7 +493,6 @@ if __name__ == "__main__":
                             Option = request.form['domainoptions']
                             task_domains = request.form['task_domains'].replace("\r", "")
                             task_domains = task_domains.replace("\n", ", ")
-                            revoke = "False"
                             auto_function = "None"
 
                             if 'revoke' in request.form:
@@ -538,6 +537,7 @@ if __name__ == "__main__":
                     return render_template('domain_tasks.html', newtask=True)
 
             except Exception as e:
+                raise e
                 app.logger.error(e)
                 return redirect(url_for('domain_tasks'))
 
@@ -937,4 +937,5 @@ if __name__ == "__main__":
             app.run(debug=Application_Details[0], host=Application_Details[1], port=Application_Details[2], threaded=True)
 
     except Exception as e:
+        raise e
         sys.exit(f"[-] {str(e)}.")
