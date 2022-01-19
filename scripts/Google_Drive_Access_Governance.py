@@ -142,7 +142,7 @@ class Main:
                 Current_Prints = []
 
         except:
-            pass
+            print("[i] Non fatal exception.")
 
     def Governance_Check(self, Page_Size, **kwargs):
         self.kwargs = kwargs

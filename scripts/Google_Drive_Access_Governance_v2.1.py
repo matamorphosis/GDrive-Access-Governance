@@ -114,7 +114,7 @@ class Main:
                             Print_Red(f" - Accessible by {Permission_Detail['displayName']} - Email: {Permission_Detail['emailAddress']}")
 
             except:
-                pass
+                print("[i] Non fatal exception.")
 
         def OtherIteration(self, Item, kwargs):
 
@@ -171,8 +171,7 @@ class Main:
                     sys.exit('[-] No valid keyword arguments supplied.')
 
             except:
-                pass
-
+                print("[i] Non fatal exception.")
 
         if Exclude_Directories:
             Response = self.Service.files().list(q="mimeType='application/vnd.google-apps.folder'", pageSize=Page_Size, fields="nextPageToken, files(id, name)",).execute()

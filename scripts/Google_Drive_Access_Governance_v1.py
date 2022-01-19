@@ -110,7 +110,7 @@ class Main:
                                 sys.exit('[-] No valid keyword arguments supplied.')
 
                         except:
-                            pass
+                            print("[i] Non fatal exception.")
 
                 Response = self.Service.files().list(pageSize=Page_Size, pageToken=Response['nextPageToken'], fields="nextPageToken, files(id, name)",).execute()
                 Page += 1
@@ -168,7 +168,7 @@ class Main:
                             sys.exit('[-] No valid keyword arguments supplied.')
 
                     except:
-                        pass
+                        print("[i] Non fatal exception.")
 
             Response = self.Service.files().list(pageSize=Page_Size, pageToken=Response['nextPageToken'], fields="nextPageToken, files(id, name)",).execute()
 

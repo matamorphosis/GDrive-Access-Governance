@@ -676,7 +676,7 @@ if __name__ == "__main__":
             try:
 
                 if not any(char in resultid for char in ["(", ")", ";", "--", "++", "\"", "\'"]):
-                    resultid = (resultid)
+                    resultid = str(resultid)
                     DB_Conn = sqlite3.connect(DB_Filename)
                     DB_Cursor = DB_Conn.cursor()
                     DB_Cursor.execute(f"""SELECT emails FROM open_results WHERE id = '{resultid}';""")
