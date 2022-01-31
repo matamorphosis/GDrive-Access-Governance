@@ -15,7 +15,9 @@
         image: ghcr.io/matamorphosis/gdag:latest
         state: started
         restart_policy: always
-        published_ports: 8000:8000
+        published_ports:
+          - 8000:8000
+          - 8080:8080
 
     - name: Enable docker service
       systemd:

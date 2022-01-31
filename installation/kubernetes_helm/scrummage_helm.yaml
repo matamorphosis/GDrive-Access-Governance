@@ -27,6 +27,7 @@ spec:
         name: gdag
         ports:
         - containerPort: 8000
+        - containerPort: 8080
         resources: {}
       restartPolicy: Always
       serviceAccountName: ""
@@ -47,6 +48,9 @@ spec:
   - name: "8000"
     port: 8000
     targetPort: 8000
+  - name: "8080"
+    port: 8080
+    targetPort: 8080
   selector:
     io.kompose.service: gdag
 status:
