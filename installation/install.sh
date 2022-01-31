@@ -25,4 +25,5 @@ else
     fi
 
     openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -keyout $PRIVATE_KEY -out $CERTIFICATE_CRT -subj "/C=$country/ST=$state/L=$locality/O=$organization/OU=$organizationalunit/CN=$commonname/emailAddress=$email"
+    chown -R $SUDO_USER:$SUDO_USER ../certs
 fi

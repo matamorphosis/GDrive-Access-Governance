@@ -145,7 +145,7 @@ class Main:
                     File_Dir = os.path.dirname(os.path.realpath('__file__'))
                     Configuration_File = os.path.join(File_Dir, 'config/credentials.json')
                     flow = InstalledAppFlow.from_client_secrets_file(Configuration_File, Scope)
-                    Credentials = flow.run_local_server(port=0)
+                    Credentials = flow.run_local_server(port=8080)
 
                 with open('token.pickle', 'wb') as token:
                     pickle.dump(Credentials, token)
