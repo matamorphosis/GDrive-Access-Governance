@@ -6,3 +6,5 @@ flask
 flask_compress
 flask_wtf
 python-dateutil
+rsa>=4.7 # not directly required, pinned by Snyk to avoid a vulnerability
+wtforms>=3.0.0a1 # not directly required, pinned by Snyk to avoid a vulnerability
