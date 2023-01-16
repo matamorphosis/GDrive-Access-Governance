@@ -1,13 +1,14 @@
 #!/usr/bin/python3
 # Google Drive External User Governance Tool Version 2.2.
-import pickle, os.path, sys, sqlite3, datetime, os
+import os.path, sys, sqlite3, datetime, os
 from multiprocessing import Pool
+from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
-from google_auth_oauthlib.flow import InstalledAppFlow
-from google.auth.transport.requests import Request
 
-# If modifying these scopes, delete the file token.pickle.
+# If modifying these scopes, delete the file token.json.
 Scope = ['https://www.googleapis.com/auth/drive.metadata.readonly', 'https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/drive.file']
 
 def Database_Output(DB_Filename, Output_Data, **kwargs):
@@ -124,33 +125,52 @@ def Database_Output(DB_Filename, Output_Data, **kwargs):
     DB_Conn.commit()
     DB_Conn.close()
 
+def API_Token_Validator(Token_File) -> bool:
+
+    if os.path.exists(Token_File):
+
+        with open(Token_File, 'rb') as token:
+            Creds = Credentials.from_authorized_user_file(Token_File, Scope)
+
+        if not Creds or not Creds.valid:
+
+            if Creds and Creds.expired and Creds.refresh_token:
+                return False
+
+            else:
+                return True
+
+        else:
+            return False
+
+    else:
+        return False
+
 class Main:
 
-    def __init__(self, DB_Filename):
+    def __init__(self, DB_Filename, Token_File, Creds_File):
 
         try:
-            Credentials = None
+            Creds = None
 
-            if os.path.exists('token.pickle'):
+            if os.path.exists(Token_File):
 
-                with open('token.pickle', 'rb') as token:
-                    Credentials = pickle.load(token)
+                with open(Token_File, 'rb') as token:
+                    Creds = Credentials.from_authorized_user_file(Token_File, Scope)
 
-            if not Credentials or not Credentials.valid:
+            if not Creds or not Creds.valid:
 
-                if Credentials and Credentials.expired and Credentials.refresh_token:
-                    Credentials.refresh(Request())
+                if Creds and Creds.expired and Creds.refresh_token:
+                    Creds.refresh(Request())
 
                 else:
-                    File_Dir = os.path.dirname(os.path.realpath('__file__'))
-                    Configuration_File = os.path.join(File_Dir, 'config/credentials.json')
-                    flow = InstalledAppFlow.from_client_secrets_file(Configuration_File, Scope)
-                    Credentials = flow.run_local_server(port=8080)
+                    flow = InstalledAppFlow.from_client_secrets_file(Creds_File, Scope)
+                    Creds = flow.run_local_server(host="localhost", port=81)
 
-                with open('token.pickle', 'wb') as token:
-                    pickle.dump(Credentials, token)
+                with open(Token_File, 'w') as token:
+                    token.write(Creds.to_json())
 
-            self.Service = build('drive', 'v3', credentials=Credentials, cache_discovery=False)
+            self.Service = build('drive', 'v3', credentials=Creds, cache_discovery=False)
             self.DB_File = DB_Filename
 
         except Exception as e:

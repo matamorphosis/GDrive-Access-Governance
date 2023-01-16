@@ -1,7 +1,7 @@
-*credentials.json
-*.db
-*.pickle
-*.log*
+**/*credentials*.json
+**/*.db
+**/*.pickle
+**/*.log*
 **/__pycache__
 **/protected
 **/python-pinterest-api
@@ -9,3 +9,4 @@
 **/lib
 **/dev
 **/development
+**/*.dccache

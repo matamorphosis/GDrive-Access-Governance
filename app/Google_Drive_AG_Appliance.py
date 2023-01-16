@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 import os, re, pathlib, sys, logging, datetime, json, sqlite3, threading, time, dateutil.parser, Certified_Results_Checker
 from werkzeug.utils import secure_filename
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 from flask_compress import Compress
 from flask_wtf.csrf import CSRFProtect, CSRFError
 from signal import signal, SIGINT
@@ -102,7 +102,7 @@ if __name__ == "__main__":
 
             def Call_API(self):
                 import GDAG_Lib
-                Google_Drive = GDAG_Lib.Main(DB_Filename)
+                Google_Drive = GDAG_Lib.Main(DB_Filename, Token_File, Creds_File)
                 DB_Conn = sqlite3.connect(DB_Filename)
                 DB_Cursor = DB_Conn.cursor()
 
@@ -123,6 +123,7 @@ if __name__ == "__main__":
                 Permitted = Result[4]
                 Directories = Result[6]
                 Included = Result[7]
+                print("Calling API")
 
                 if Directories and str(Included) == "True" and str(Permitted) == "True":
                     Thread_1 = threading.Thread(target=Google_Drive.Governance_Check, args=(Page_Size,), kwargs={f"permitted_{self.task_type.lower()}": Result[3].split(", "), "Auto_Function": Result[5],"Included_Directories": Directories.split(", "),})
@@ -150,7 +151,8 @@ if __name__ == "__main__":
 
         DB_Filename = 'GDriveAGApp.db'
         Schema_Filename = 'Schema.sql'
-        Token_File = "token.pickle"
+        Token_File = os.path.join(app.config['UPLOAD_FOLDER'], "token.json")
+        Creds_File = os.path.join(app.config['UPLOAD_FOLDER'], "credentials.json")
         DB_Is_New = not os.path.exists(DB_Filename)
         DB_Conn = sqlite3.connect(DB_Filename)
 
@@ -281,6 +283,65 @@ if __name__ == "__main__":
             except Exception as e:
                 app.logger.error(e)
 
+        def token_validator(f):
+
+            try:
+                @wraps(f)
+                def wrap(*args, **kwargs):
+
+                    if os.path.exists(os.path.join(app.config['UPLOAD_FOLDER'], "token.json")):
+                        import GDAG_Lib
+                        Valid = GDAG_Lib.API_Token_Validator(Token_File)
+
+                        if Valid:
+                            return jsonify({"Error": "A token already exists and is still valid, the use of this endpoint is no longer necessary."}), 409
+
+                        else:
+                            return f(*args, **kwargs)
+
+                    else:
+                        return f(*args, **kwargs)
+
+                return wrap
+
+            except Exception as e:
+                app.logger.error(e)
+                return jsonify({"Error": "Unknown Error."}), 500
+
+        @app.route('/api/auth/upload', methods=['POST'])
+        @csrf.exempt
+        @token_validator
+        def token_upload():
+
+            try:
+
+                with open(Token_File, 'w') as token:
+                    token.write(request.json)
+                
+                return jsonify({"Message": "Token successfully uploaded."}), 201
+
+            except Exception as e:
+                app.logger.error(e)
+                return jsonify({"Error": "Unknown Error."}), 500
+
+        @app.route('/api/auth/download', methods=['GET'])
+        @token_validator
+        def auth_download():
+
+            try:
+
+                if os.path.exists(Creds_File):
+
+                    with open(Creds_File, 'r') as creds:
+                        return jsonify(json.load(creds)), 200
+
+                else:
+                    return jsonify({"Error": "File not found."}), 404
+
+            except Exception as e:
+                app.logger.error(e)
+                return jsonify({"Error": "Unknown Error."}), 500
+
         @app.route('/upload', methods=['GET', 'POST'])
         @upload_ignore
         def upload():
@@ -289,19 +350,17 @@ if __name__ == "__main__":
 
                 if request.method == "POST":
                     f = request.files['file']
-                    Contents = {}
-                    Required_Keys = ['client_id', 'project_id', 'auth_uri', 'token_uri', 'auth_provider_x509_cert_url', 'client_secret', 'redirect_uris']
 
                     try:
-                        Contents = json.load(f)
+                        # Validate file is JSON
+                        json.load(f)
 
                     except:
                         return render_template('upload.html')
 
-                    if Contents.get("installed") and all(Key in Contents["installed"].keys() for Key in Required_Keys) and f.filename == "credentials.json":
-                        file = secure_filename(f.filename)
-                        f.stream.seek(0)
-                        f.save(os.path.join(app.config['UPLOAD_FOLDER'], file))
+                    file = secure_filename(f.filename)
+                    f.stream.seek(0)
+                    f.save(os.path.join(app.config['UPLOAD_FOLDER'], file))
 
                     time.sleep(1)
                     return redirect(url_for('index'))
@@ -538,7 +597,6 @@ if __name__ == "__main__":
                     return render_template('domain_tasks.html', newtask=True)
 
             except Exception as e:
-                raise e
                 app.logger.error(e)
                 return redirect(url_for('domain_tasks'))
 
@@ -719,7 +777,7 @@ if __name__ == "__main__":
 
                                     if email in Email_List:
                                         import GDAG_Lib
-                                        Google_Drive = GDAG_Lib.Main(DB_Filename)
+                                        Google_Drive = GDAG_Lib.Main(DB_Filename, Token_File, Creds_File)
                                         Revoked = Google_Drive.Revoke_Access(Result_ID_Inner, email)
 
                                         if Revoked:
@@ -884,7 +942,7 @@ if __name__ == "__main__":
 
                                 if Request_Form["email"] not in Open_Results_Email_List and Request_Form["email"] not in Cert_Results_Email_List:
                                     import GDAG_Lib
-                                    Google_Drive = GDAG_Lib.Main(DB_Filename)
+                                    Google_Drive = GDAG_Lib.Main(DB_Filename, Token_File, Creds_File)
                                     Provisioned = Google_Drive.Provision_Access(Result_ID, Transfer_Ownership, {"role": Request_Form['role'], "type": Request_Form['grantee'], "emailAddress": Request_Form["email"]})
                                     Updated = str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
 
@@ -938,5 +996,4 @@ if __name__ == "__main__":
             app.run(debug=Application_Details[0], host=Application_Details[1], port=Application_Details[2], threaded=True)
 
     except Exception as e:
-        raise e
         sys.exit(f"[-] {str(e)}.")

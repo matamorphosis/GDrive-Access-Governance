@@ -1,0 +1,27 @@
+version: "1.0"
+services:
+  gdag:
+    image: ghcr.io/matamorphosis/gdag-appliance:latest
+    container_name: gdag
+    ports:
+    - "443:443"
+    networks:
+      vpcbr:
+        ipv4_address: 10.0.0.6
+
+  auth-flow:
+    image: ghcr.io/matamorphosis/gdag-auth-flow:latest
+    container_name: auth-flow
+    ports:
+    - "81:81"
+    networks:
+      vpcbr:
+        ipv4_address: 10.0.0.7
+
+networks:
+  vpcbr:
+    driver: bridge
+    ipam:
+     config:
+       - subnet: 10.0.0.0/16
+         gateway: 10.0.0.1

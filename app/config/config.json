@@ -2,7 +2,7 @@
     "web-app": {
         "debug": false,
         "host": "0.0.0.0",
-        "port": 8000,
+        "port": 443,
         "certificate_file": "../certs/certificate.crt",
         "key_file": "../certs/privateKey.key"
     }

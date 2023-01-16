@@ -3,16 +3,18 @@ name: publish
 on: [push]
 
 jobs:
-  publish-gdag-image:
+  publish-gdag-images:
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v2
 
-    - name: Build the Scrummage Docker image
+    - name: Build GDAG Docker images
       run: |
         echo $CR_PAT | docker login ghcr.io -u matamorphosis --password-stdin
-        docker build . --tag ghcr.io/matamorphosis/gdag:latest
-        docker push ghcr.io/matamorphosis/gdag:latest
+        docker build -f GDAG.Dockerfile --tag ghcr.io/matamorphosis/gdag-appliance:latest .
+        docker build -f AuthFlow.Dockerfile --tag ghcr.io/matamorphosis/gdag-auth-flow:latest .
+        docker push ghcr.io/matamorphosis/gdag-appliance:latest
+        docker push ghcr.io/matamorphosis/gdag-auth-flow:latest
       env:
         CR_PAT: ${{ secrets.CR_PAT }}
