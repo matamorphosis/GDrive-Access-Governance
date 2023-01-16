@@ -167,24 +167,21 @@
 
                     function sendRequest() {
                         var xhr = new XMLHttpRequest();
-                        var selectedValArray = getSelectValues()
-                        var use_xhr = true;
+                        var selectedValArray = getSelectValues();
 
                         if (arguments[0] === 'Certify') {
                             var uri = "{{ url_for('redirect_results') }}" + "/certify"
                         } else if (arguments[0] === "Revoke") {
                             var uri = "{{ url_for('redirect_results') }}" + "/revoke"
                         }
-                        if (use_xhr === true) {
-                            var csrf_token = "{{ csrf_token() }}";
-                            xhr.open("POST", uri, true);
-                            xhr.setRequestHeader("X-CSRFToken", csrf_token);
-                            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                            xhr.send("file=" + arguments[1] + "&emails=" + selectedValArray);
-                            xhr.onreadystatechange = function(e) {
-                                if (xhr.readyState === 4) {
-                                    location.reload();
-                                }
+                        var csrf_token = "{{ csrf_token() }}";
+                        xhr.open("POST", uri, true);
+                        xhr.setRequestHeader("X-CSRFToken", csrf_token);
+                        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                        xhr.send("file=" + arguments[1] + "&emails=" + selectedValArray);
+                        xhr.onreadystatechange = function(e) {
+                            if (xhr.readyState === 4) {
+                                location.reload();
                             }
                         }
                     }
