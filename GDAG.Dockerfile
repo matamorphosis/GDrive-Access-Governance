@@ -2,7 +2,7 @@
 # Pull latest stable Ubuntu
 #----------------------------------------------------------------------------------------------------
 FROM ubuntu:20.04
-LABEL org.opencontainers.image.source="https://github.com/matamorphosis/GDAG"
+LABEL org.opencontainers.image.source = "https://github.com/matamorphosis/GDrive-Access-Governance"
 #----------------------------------------------------------------------------------------------------
 
 #----------------------------------------------------------------------------------------------------
