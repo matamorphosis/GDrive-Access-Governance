@@ -85,7 +85,7 @@ Below there is an example of the output that can be expected. The names and emai
 ![Results](/installation/images/Example_Terminal_Output.png)
 
 # List of Current Monthly Sponsors
-[Endure Secure Pty Ltd](https://endsec.com.au/)
+[Endure Secure Pty Ltd](https://endsec.au/)
 <p align="left">
   <img width="231" height="72" src="./installation/images/Sponsor_Endure_Secure.png">
 </p>
