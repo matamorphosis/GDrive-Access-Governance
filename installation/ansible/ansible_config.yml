@@ -1,6 +1,6 @@
 ---
-- name: Scrummage setup
-  hosts: scrummageservers
+- name: GDAG setup
+  hosts: gdagservers
   become: true
   tasks:
     - name: docker.io
