@@ -6,3 +6,4 @@ flask
 flask_compress
 flask_wtf
 python-dateutil
+werkzeug>=3.0.1 # not directly required, pinned by Snyk to avoid a vulnerability
